@@ -1,0 +1,32 @@
+#!/bin/bash
+# Create an Apache Virtual Host
+
+clear
+echo "--------------- APACHE VIRTUAL HOST CREATION ---------------"
+echo
+echo -n "Enter domain name (example.com): "
+read domainName
+echo -n "Enter current user: "
+read currentUser
+echo -n "Enter ServerAdmin email (user@example.com): "
+read email
+
+set apachePath="/etc/apache2/sites-available/$domainName.conf"
+mkdir -p /var/www/$domainName/
+mkdir -p /var/www/$domainName/public_html
+
+echo "Created directory /var/www/"$domainName"/public_html"
+
+sudo chown -R ubuntu:ubuntu /var/www/$domainName/public_html
+chmod -R 755 /var/www
+
+echo '<html> <head> <title>Welcome to '$domainName'!</title> </head> <body> <h1>Success! The new '$domainName' virtual host is working!</h1> </body> </html>' | sudo tee /var/www/$domainName/public_html/index.html
+
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/$domainName.conf
+
+sed -i s/"ServerAdmin webmaster@localhost"/"ServerAdmin $email\n        ServerName $domainName\n        ServerAlias www.$domainName\n"/g /etc/apache2/sites-available/$domainName.conf
+
+replace "/var/www/html" "/var/www/$domainName/public_html" -- /etc/apache2/sites-available/$domainName.conf
+
+a2ensite $domainName.conf
+service apache2 restart
