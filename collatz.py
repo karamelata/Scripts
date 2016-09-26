@@ -1,3 +1,5 @@
+import sys
+
 def clearScreen():
 	x = 1
 	while (x < 50):
@@ -8,10 +10,12 @@ choice = True
 while (choice):
 	clearScreen()
 	try:
-		userNum = int(raw_input("Enter starting number (or leave blank for longest number to compute): "))
+		userNum = int(raw_input("Enter starting number or 0 to quit (or leave blank for longest number to compute): "))
 	except ValueError:
 		userNum = 63728127
 	currentNum = userNum
+	if(currentNum == 0):
+		sys.exit()
 	count = 0
 	while (currentNum > 1):
 		if(currentNum % 2 == 0):
