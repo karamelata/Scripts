@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 import urllib
 import json
+import sys
 
-title = raw_input("Movie Title: ")
+def getMovie(title):
+	url='http://www.omdbapi.com/?t='+str(title)
+	response = urllib.urlopen(url).read()
+	jsonvalues = json.loads(response)
+	if jsonvalues["Response"]=="True":
+		imdbrating = jsonvalues['imdbRating']
+		print title + " - " + imdbrating
+		for key, value in jsonvalues.items():
+			print key + " - " + value
+	else:
+		print "Movie could not be found!"
 
-url='http://www.omdbapi.com/?t='+str(title)
-response = urllib.urlopen(url).read()
-jsonvalues = json.loads(response)
-if jsonvalues["Response"]=="True":
-	imdbrating = jsonvalues['imdbRating']
-	print title + " - " + imdbrating
-	for key, value in jsonvalues.items():
-		print key + " - " + value
+
+if len(sys.argv) > 1:
+	title = str(sys.argv[1])
+	getMovie(title)
 else:
-	print "Movie could not be found!"
+	print ("syntax: " + sys.argv[0] + " <MovieTitle>")
