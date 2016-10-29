@@ -20,6 +20,7 @@ alias o=open
 alias c=clear
 alias h=history
 alias x=exit
+alias g=git
 alias j='jobs -l'
 alias ..='cd ..'
 alias ...='cd ../../../'
