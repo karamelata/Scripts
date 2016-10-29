@@ -4,10 +4,11 @@ import json
 import sys
 
 def getMovie(title):
-	url='http://www.omdbapi.com/?t='+str(title)
+	url='http://www.omdbapi.com/?y=&plot=short&r=json&tomatoes=true&t='+str(title)
 	response = urllib.urlopen(url).read()
 	jsonvalues = json.loads(response)
 	if jsonvalues["Response"]=="True":
+		title = jsonvalues['Title']
 		imdbrating = jsonvalues['imdbRating']
 		print title + " - " + imdbrating
 		for key, value in jsonvalues.items():
