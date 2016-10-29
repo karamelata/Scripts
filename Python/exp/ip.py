@@ -7,8 +7,8 @@ import json
 if len(sys.argv) > 1:
     ip = str(sys.argv[1])
 else:
-	print "Invalid IP Address!"
-	sys.exit()
+	print "using local IP address"
+	ip =""
 
 url='http://ipinfo.io/'+str(ip)+'/json'
 response = urllib.urlopen(url).read()
