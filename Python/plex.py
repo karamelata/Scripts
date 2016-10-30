@@ -41,15 +41,18 @@ def writeToSS(wks, movie):
 	title = movie[0]
 	apiResponse = movie[1]
 	try:
-		wks.find(title)
-		print "Already in workbook: " + title + "\n"
+		cell = wks.find(title)
+		if(cell.col == 1):
+			print "Already in workbook: " + title + "\n"
+			return
 	except gspread.exceptions.CellNotFound:
-		if apiResponse is ROGUE:
-			print "Adding raw title to workbook..."
-		else:
-			print "Adding to workbook..."
-		wks.append_row(movie)
-		print title + " added." + "\n"
+		pass
+	if apiResponse is ROGUE:
+		print "Adding raw title to workbook..."
+	else:
+		print "Adding to workbook..."
+	wks.append_row(movie)
+	print title + " added." + "\n"
 
 def getMovie(title):
 	url='http://www.omdbapi.com/?y=&plot=short&r=json&tomatoes=true&t='+str(title)
@@ -84,10 +87,14 @@ def main():
 		print "Invalid file path!"
 		sys.exit()
 
-	sys.stdout = Logger("plex-data.log")
+	#sys.stdout = Logger("plex-data.log")
 	worksheet = openSS("Plex Data")
 
-	dirlist = [ item for item in os.listdir(root) if os.path.isdir(os.path.join(root, item)) ]
+	dirlist = []
+	for item in os.listdir(root):
+		item = item[:-7]
+		print item
+		dirlist.append(item)
 	numOfDir = len(dirlist)
 	for x in range(numOfDir):
 		title = dirlist[x]
@@ -95,8 +102,8 @@ def main():
 		print str(x+1) + "/" + str(numOfDir)
 		print  "Processing " + title + "..."
 		movie = getMovie(title)
+		sys.stdout.flush()
 		writeToSS(worksheet, movie)
-	worksheet.close()
 
 if __name__ == '__main__':
     main()
