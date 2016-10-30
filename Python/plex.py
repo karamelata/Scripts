@@ -45,10 +45,11 @@ def writeToSS(wks, movie):
 		print "Already in workbook: " + title + "\n"
 	except gspread.exceptions.CellNotFound:
 		if apiResponse is ROGUE:
-			print "Adding raw title to workbook:" + title + "\n"
+			print "Adding raw title to workbook..."
 		else:
-			print "Adding to workbook: " + title + "\n"
+			print "Adding to workbook..."
 		wks.append_row(movie)
+		print title + " added." + "\n"
 
 def getMovie(title):
 	url='http://www.omdbapi.com/?y=&plot=short&r=json&tomatoes=true&t='+str(title)
@@ -59,6 +60,8 @@ def getMovie(title):
 		director = jsonvalues['Director']
 		genre = jsonvalues['Genre']
 		time = jsonvalues['Runtime']
+		# Remove all whitespace and last 3 characters from string (used to chop 'min' off of time)
+		time = ''.join(time.split())[:-3]
 		rated = jsonvalues['Rated']
 		imdb = jsonvalues['imdbRating']
 		tomatoScore = jsonvalues['tomatoMeter']
