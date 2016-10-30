@@ -56,7 +56,6 @@ def getMovie(title):
 		tomatoURL = jsonvalues['tomatoURL']
 		movie = Movie(title, director, genre, time, rated, imdb, tomatoScore, tomatoUser, year, boxOffice, plot, tomatoURL)
 		movieArr.append(movie)
-		print "Processing " + title + "\n"
 		print title + " processed." + "\n"
 	else:
 		print title + " failed!" + "\n"
@@ -69,9 +68,11 @@ def main():
 		sys.exit()
 
 	dirlist = [ item for item in os.listdir(root) if os.path.isdir(os.path.join(root, item)) ]
-	for x in range(len(dirlist)):
+	numOfDir = len(dirlist)
+	for x in range(numOfDir):
 		title = dirlist[x]
 		title = title.replace('', '')
+		print  str(x+1) + "/" + str(numOfDir) + " Processing " + title + "...\n"
 		getMovie(title)
 	writeToSS(movieArr)
 	goodFile.close()
