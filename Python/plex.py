@@ -3,13 +3,16 @@ import os
 import sys
 import urllib
 import json
+import time
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 from collections import namedtuple
-Movie = namedtuple("Movie", "title director genre time rating imdbMeter rottenMeter rottenUserMeter releaseYear boxOffice plot rottenURL")
+Movie = namedtuple("Movie", "title director genre time rating imdbMeter rottenMeter rottenUserMeter releaseYear boxOffice plot imdbURL rottenURL")
 ROGUE = '-'
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 class Logger:
     def __init__(self):
@@ -54,8 +57,8 @@ def writeToSS(wks, movie):
 	wks.append_row(movie)
 	print title + " added." + "\n"
 
-def getMovie(title):
-	url='http://www.omdbapi.com/?y=&plot=short&r=json&tomatoes=true&t='+str(title)
+def getMovie(title, year):
+	url='http://www.omdbapi.com/?plot=short&r=json&tomatoes=true&t='+str(title)+'&y='+str(year)
 	response = urllib.urlopen(url).read()
 	jsonvalues = json.loads(response)
 	if jsonvalues["Response"]=="True":
@@ -72,11 +75,12 @@ def getMovie(title):
 		year = jsonvalues['Year']
 		boxOffice = jsonvalues['BoxOffice']
 		plot = jsonvalues['Plot']
+		imdbURL = 'http://www.imdb.com/title/' + jsonvalues['imdbID']
 		tomatoURL = jsonvalues['tomatoURL']
-		movie = Movie(title, director, genre, time, rated, imdb, tomatoScore, tomatoUser, year, boxOffice, plot, tomatoURL)
+		movie = Movie(title, director, genre, time, rated, imdb, tomatoScore, tomatoUser, year, boxOffice, plot, imdbURL, tomatoURL)
 		print title + " processed."
 	else:
-		movie = Movie(title, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE)
+		movie = Movie(title, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE)
 		print title + " failed!"
 	return movie
 
@@ -92,18 +96,23 @@ def main():
 
 	dirlist = []
 	for item in os.listdir(root):
-		item = item[:-7]
-		print item
 		dirlist.append(item)
 	numOfDir = len(dirlist)
+	
 	for x in range(numOfDir):
-		title = dirlist[x]
-		title = title.replace('', '')
+		title = dirlist[x][:-7]
+		year = (dirlist[x][-5:])[:-1]
 		print str(x+1) + "/" + str(numOfDir)
 		print  "Processing " + title + "..."
-		movie = getMovie(title)
+		movie = getMovie(title, year)
 		sys.stdout.flush()
+		# Reauth every 100 iterations
+		if(x % 100 == 0):
+			worksheet = openSS("Plex Data")
 		writeToSS(worksheet, movie)
 
 if __name__ == '__main__':
-    main()
+	start_time = time.time()
+	print (time.strftime("%m/%d/%Y")) + " " + (time.strftime("%H:%M:%S")) + "\n"
+	main()
+	print("Execution Time: %s seconds" % (time.time() - start_time))
