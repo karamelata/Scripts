@@ -32,12 +32,17 @@ def getWeather():
 			weekSummary = jsonvalues['daily']['summary']
 		else:
 			weekSummary = ROGUE
+		if 'precipType' in jsonvalues:
+		    precipVal = jsonvalues['daily']['data'][0]['precipType']
+		else:
+			precipVal = ROGUE
+
 		result = Weather(time.strftime("%Y"), time.strftime("%B"), time.strftime("%d"), time.strftime("%A"), 
 			 jsonvalues['daily']['data'][0]['summary'],
 			 jsonvalues['daily']['data'][0]['apparentTemperatureMin'],
 			  jsonvalues['daily']['data'][0]['apparentTemperatureMax'],
 			   jsonvalues['daily']['data'][0]['precipProbability'],
-			    jsonvalues['daily']['data'][0]['precipType'],
+			   	precipVal,
 			     jsonvalues['daily']['data'][0]['humidity'],
 			      jsonvalues['daily']['data'][0]['windSpeed'],
 			       jsonvalues['daily']['data'][0]['cloudCover'],
