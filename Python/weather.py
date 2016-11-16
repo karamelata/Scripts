@@ -11,7 +11,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 from collections import namedtuple
-Weather = namedtuple("Weather", "year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
+Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
 ROGUE = '-'
 
 API_KEY = open('darkSky_api.txt', 'r').readline()
@@ -32,12 +32,13 @@ def getWeather():
 			weekSummary = jsonvalues['daily']['summary']
 		else:
 			weekSummary = ROGUE
-		if 'precipType' in jsonvalues:
+		if jsonvalues['daily']['data'][0]['precipProbability'] != 0:
 		    precipVal = jsonvalues['daily']['data'][0]['precipType']
 		else:
 			precipVal = ROGUE
 
-		result = Weather(time.strftime("%Y"), time.strftime("%B"), time.strftime("%d"), time.strftime("%A"), 
+		result = Weather(jsonvalues['currently']['time'],
+			time.strftime("%Y"), time.strftime("%B"), time.strftime("%d"), time.strftime("%A"),
 			 jsonvalues['daily']['data'][0]['summary'],
 			 jsonvalues['daily']['data'][0]['apparentTemperatureMin'],
 			  jsonvalues['daily']['data'][0]['apparentTemperatureMax'],
