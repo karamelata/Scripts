@@ -37,26 +37,59 @@ def getWeather(when):
 	response = urllib.urlopen(url).read()
 	jsonvalues = json.loads(response)
 	if jsonvalues["timezone"]=="America/New_York":
+
+		if 'summary' not in jsonvalues['daily']['data'][0]:
+		    summary = ROGUE
+		else:
+			summary = jsonvalues['daily']['data'][0]['summary']
+
+		if 'apparentTemperatureMin' not in jsonvalues['daily']['data'][0]:
+		    apparentTemperatureMin = ROGUE
+		else:
+			apparentTemperatureMin = jsonvalues['daily']['data'][0]['apparentTemperatureMin']
+
+		if 'apparentTemperatureMax' not in jsonvalues['daily']['data'][0]:
+		    apparentTemperatureMax = ROGUE
+		else:
+			apparentTemperatureMax = jsonvalues['daily']['data'][0]['apparentTemperatureMax']
+
+		precipProb = jsonvalues['daily']['data'][0]['precipProbability']
+		if (precipProb == 0):
+		    precipVal = ROGUE
+		else:
+			precipVal = jsonvalues['daily']['data'][0]['precipType']
+
+		if 'humidity' not in jsonvalues['daily']['data'][0]:
+		    humidity = ROGUE
+		else:
+			humidity = jsonvalues['daily']['data'][0]['humidity']
+
+		if 'windSpeed' not in jsonvalues['daily']['data'][0]:
+		    windSpeed = ROGUE
+		else:
+			windSpeed = jsonvalues['daily']['data'][0]['windSpeed']
+
+		if 'cloudCover' not in jsonvalues['daily']['data'][0]:
+		    cloudCover = ROGUE
+		else:
+			cloudCover = jsonvalues['daily']['data'][0]['cloudCover']
+
 		if (time.strftime("%A") == "Sunday"):
 			weekSummary = jsonvalues['daily']['summary']
 		else:
 			weekSummary = ROGUE
-		if (jsonvalues['daily']['data'][0]['precipProbability'] != 0):
-		    precipVal = jsonvalues['daily']['data'][0]['precipType']
-		else:
-			precipVal = ROGUE
 
 		result = Weather(jsonvalues['currently']['time'],
 			weatherTime.strftime("%Y"), weatherTime.strftime("%m"), weatherTime.strftime("%d"), weatherTime.strftime("%a"),
-			 jsonvalues['daily']['data'][0]['summary'],
-			 jsonvalues['daily']['data'][0]['apparentTemperatureMin'],
-			  jsonvalues['daily']['data'][0]['apparentTemperatureMax'],
-			   jsonvalues['daily']['data'][0]['precipProbability'],
-			   	precipVal,
-			     jsonvalues['daily']['data'][0]['humidity'],
-			      jsonvalues['daily']['data'][0]['windSpeed'],
-			       jsonvalues['daily']['data'][0]['cloudCover'],
-			        weekSummary)
+			 summary,
+			  apparentTemperatureMin,
+			   apparentTemperatureMax,
+			    precipProb,
+			     precipVal,
+			      humidity,
+			       windSpeed,
+			        cloudCover,
+			         weekSummary)
 		print result
 	else:
 		print "Weather API call failed on " + time.strftime("%c")
