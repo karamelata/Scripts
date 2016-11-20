@@ -60,9 +60,13 @@ def getWeather(when):
 		    apparentTemperatureMax = ROGUE
 		else:
 			apparentTemperatureMax = jsonvalues['daily']['data'][0]['apparentTemperatureMax']
+			
+		if 'precipProbability' not in jsonvalues['daily']['data'][0]:
+		    precipProbability = ROGUE
+		else:
+			precipProbability = jsonvalues['daily']['data'][0]['precipProbability']
 
-		precipProb = jsonvalues['daily']['data'][0]['precipProbability']
-		if (precipProb == 0):
+		if ('precipType' not in jsonvalues['daily']['data'][0]) or (precipProbability == 0):
 		    precipVal = ROGUE
 		else:
 			precipVal = jsonvalues['daily']['data'][0]['precipType']
@@ -82,7 +86,7 @@ def getWeather(when):
 		else:
 			cloudCover = jsonvalues['daily']['data'][0]['cloudCover']
 
-		if (time.strftime("%A") == "Sunday"):
+		if (time.strftime("%A") == "Sunday") and ('summary' in jsonvalues['daily']):
 			weekSummary = jsonvalues['daily']['summary']
 		else:
 			weekSummary = ROGUE
@@ -92,7 +96,7 @@ def getWeather(when):
 			 summary,
 			  apparentTemperatureMin,
 			   apparentTemperatureMax,
-			    precipProb,
+			    precipProbability,
 			     precipVal,
 			      humidity,
 			       windSpeed,
