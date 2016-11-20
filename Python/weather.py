@@ -16,6 +16,8 @@ from collections import namedtuple
 Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
 ROGUE = '-'
 
+ONE_DAY = 86400
+
 API_KEY = open('darkSky_api.txt', 'r').readline()
 
 def clearScreen():
@@ -107,26 +109,40 @@ def getWeather(when):
 		sys.exit()
 	return result
 
-def userMode():
+def getInteractiveChoice():
 	while True:
 		clearScreen()
 		print("-- WEATHER DATA --")
 		print("Please choose from the following options.")
 		print("(1) Today's Weather")
-		print("(2) Past Weather from Time Machine")
+		print("(2) Tomorrow's Weather")
+		print("(3) Yesterday's Weather")
+		print("(4) Past Weather from Time Machine")
 		try:
 			choice = int(raw_input("Choice: "))
 		except ValueError:
 			continue
-		if choice < 1 or choice > 2:
+		if choice < 1 or choice > 4:
 			continue
 		else:
-			break
+			return choice
 
+def userMode(choice):
+	if(choice == 0):
+		choice = getInteractiveChoice()
 	if choice == 1:
 		result = getWeather(0)
 		timestamp = datetime.datetime.now()
 	if choice == 2:
+		timestamp = int(time.time())
+		timestamp += ONE_DAY
+		result = getWeather(timestamp)
+	if choice == 3:
+		timestamp = int(time.time())
+		timestamp -= ONE_DAY
+		result = getWeather(timestamp)
+	if choice == 4:
+		print("-- Time Machine Weather Report --")
 		dateStr = raw_input("MM/DD/YYYY: ")
 		try:
 			dateStr += " 11:00PM"
@@ -138,7 +154,7 @@ def userMode():
 	print("Summary: " + str(result[5]))
 	print("Low: " + str(result[6]))
 	print("High: " + str(result[7]))
-	# If precipProb > 0
+	# if precipProb > 0
 	if(result[8] > 0):
 		print("Chance of " + str(result[9]) + ": " + str(result[8]))
 
@@ -148,7 +164,11 @@ def callHelp():
 	print("call " + str(sys.argv[0]) + " -X: ")
 	print("-a    : auto-add daily weather to Google Sheet")
 	print("-i    : Interactive Mode")
-	print("-help : Call this help menu again")
+	print("-n    : Weather for today")
+	print("-t    : Weather for tomorrow")
+	print("-y    : Weather for yesterday")
+	print("-m    : Time Machine weather")
+	print("-h    : Call this help menu again")
 	sys.exit()
 
 def autoMode():
@@ -160,12 +180,20 @@ def autoMode():
 def main():
 	if len(sys.argv) > 1:
 		mode = str(sys.argv[1])
-		if mode == '-help':
-			callHelp()
 		if mode == '-a':
 			autoMode()
-		else:
-			userMode()
+		if mode == '-i':
+			userMode(0)
+		if mode == '-n':
+			userMode(1)
+		if mode == '-t':
+			userMode(2)
+		if mode == '-y':
+			userMode(3)
+		if mode == '-m':
+			userMode(4)
+		if mode == '-h' or mode == "-help":
+			callHelp()
 	else:
 		print "Invalid execution, try \'" + str(sys.argv[0]) + " -help\'"
 		sys.exit()
