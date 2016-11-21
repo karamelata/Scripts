@@ -1,0 +1,16 @@
+htop
+boost
+http://stackoverflow.com/questions/104322/how-do-you-install-boost-on-macos
+calc
+emacs
+gcc48
+htop
+imagemagick
+node
+python2
+python3
+unrar
+valgrind
+wget
+zsh-syntax-highlighting
+
