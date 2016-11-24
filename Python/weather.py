@@ -8,17 +8,9 @@ import time
 import datetime
 import urllib
 import json
-
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-
 from collections import namedtuple
-Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
-ROGUE = '-'
-
-ONE_DAY = 86400
-
-API_KEY = open('darkSky_api.txt', 'r').readline()
 
 def clearScreen():
 	if (platform.system() == "Windows"):
@@ -197,6 +189,11 @@ def main():
 	else:
 		print "Invalid execution, try \'" + str(sys.argv[0]) + " -help\'"
 		sys.exit()
+
+Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
+ROGUE = '-'
+ONE_DAY = 86400
+API_KEY = open('darkSky_api.txt', 'r').readline()
 
 if __name__ == '__main__':
     main()
