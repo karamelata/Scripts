@@ -22,6 +22,11 @@ DEFAULT_COOR = "42.6751,-71.4828"
 LOCATION_COOR = "NULL"
 LOCATION_INFO = "NULL"
 
+if len(sys.argv) > 1:
+	FLAG_CALL = True
+else:
+	FLAG_CALL = False
+
 API_KEY = open('darkSky_api.txt', 'r').readline()
 
 def clearScreen():
@@ -145,7 +150,8 @@ def printReport(result):
 	# if precipProb > 0
 	if(result[8] > 0):
 		print("Chance of " + str(result[9]) + ": " + str(result[8]))
-	pressKeyToContinue()
+	if not FLAG_CALL:
+		pressKeyToContinue()
 
 def getInteractiveChoice():
 	global LOCATION_COOR
@@ -209,6 +215,9 @@ def userMode(choice):
 			weatherLocation = getLocationInfo(weatherCoordinates)
 			LOCATION_COOR = weatherCoordinates
 			LOCATION_INFO = weatherLocation
+		# If called with CLI flag, no need to loop (not interactive mode)
+		if FLAG_CALL:
+			sys.exit()
 		choice = -1
 
 def callHelp():
@@ -234,7 +243,7 @@ def main():
 	global LOCATION_INFO
 	LOCATION_COOR = DEFAULT_COOR
 	LOCATION_INFO = getLocationInfo(LOCATION_COOR)
-	if len(sys.argv) > 1:
+	if FLAG_CALL:
 		mode = str(sys.argv[1])
 		if mode == '-a':
 			autoMode()
