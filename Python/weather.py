@@ -42,16 +42,15 @@ def openSS(bookName, sheetName):
 	wks = gc.open(bookName).worksheet(sheetName)
 	return wks
 
-def getCoordinates():
+def getCoordinates(locationString):
 	geolocator = Nominatim()
-	zipStr = str(raw_input("\nNew location: "))
-	if len(zipStr) < 5:
+	if len(locationString) < 5:
 		# Python does not read leading zeros, so pad an extra '0'
 		# if x < 5 (length of zip codes)
-		zipStr.zfill(5)
-	zipStr += " United States"
+		locationString.zfill(5)
+	locationString += " United States"
 	#location = geolocator.reverse("42.6751,-71.4828")
-	location = geolocator.geocode(zipStr)
+	location = geolocator.geocode(locationString)
 	x = str(location.latitude)
 	y = str(location.longitude)
 	z = x + ", " + y
@@ -213,7 +212,8 @@ def userMode(choice):
 			printReport(result)
 
 		if choice == 5:
-			weatherCoordinates = getCoordinates()
+			locStr = str(raw_input("\nNew location: "))
+			weatherCoordinates = getCoordinates(locStr)
 			weatherLocation = getLocationInfo(weatherCoordinates)
 			LOCATION_COOR = weatherCoordinates
 			LOCATION_INFO = weatherLocation
