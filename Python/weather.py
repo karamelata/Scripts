@@ -63,21 +63,26 @@ def getLocationInfo(coordinates):
 	location = geolocator.reverse(coordinates)
 	return location.address
 
-def getWeather(when):
+def getWeatherJSON(when):
 	global LOCATION_COOR
-	global LOCATION_INFO
 	if (when == 0):
 		url='https://api.darksky.net/forecast/' + API_KEY + '/' + LOCATION_COOR
-		weatherTime = datetime.datetime.now()
 	# If unix timestamp is passed, use Time Machine API call
 	else:
 		url='https://api.darksky.net/forecast/' + API_KEY + '/' + LOCATION_COOR + ',' + str(when) + '?exclude=flags'
-		weatherTime = datetime.datetime.fromtimestamp(when)
-	print("---- Weather for " + weatherTime.strftime('%B %d, %Y (%a)') + " ----")
-	
 	response = urllib.urlopen(url).read()
 	jsonvalues = json.loads(response)
+	return jsonvalues
+
+def getWeather(when):
+	jsonvalues = getWeatherJSON(when)
+	if when == 0:
+		weatherTime = datetime.datetime.now()
+	else:
+		weatherTime = datetime.datetime.fromtimestamp(when)
+
 	if 'timezone' in jsonvalues:
+		print("---- Weather for " + weatherTime.strftime('%B %d, %Y (%a)') + " ----")
 
 		if 'summary' not in jsonvalues['daily']['data'][0]:
 		    summary = ROGUE
@@ -158,10 +163,10 @@ def getInteractiveChoice():
 		print("-- WEATHER DATA --")
 		print("Location: " + LOCATION_INFO + ' (' + LOCATION_COOR + ')')
 		print("Please choose from the following options:")
-		print("(1) Today's Weather")
-		print("(2) Tomorrow's Weather")
-		print("(3) Yesterday's Weather")
-		print("(4) Past Weather from Time Machine")
+		print("(1) Today")
+		print("(2) Tomorrow")
+		print("(3) Yesterday")
+		print("(4) Weather from Time Machine")
 		print("(5) Change Location")
 		print("(0) Quit")
 		try:
