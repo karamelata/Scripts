@@ -14,6 +14,9 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from collections import namedtuple
 
+Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
+
+ROGUE = '-'
 ONE_DAY = 86400
 DEFAULT_COOR = "42.6751,-71.4828"
 LOCATION_COOR = "NULL"
@@ -263,11 +266,6 @@ def main():
 			callHelp()
 	else:
 		userMode(-1)
-
-Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
-ROGUE = '-'
-ONE_DAY = 86400
-API_KEY = open('darkSky_api.txt', 'r').readline()
 
 if __name__ == '__main__':
     main()
