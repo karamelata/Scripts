@@ -36,7 +36,7 @@ def clearScreen():
 		os.system('clear')
 
 def pressKeyToContinue():
-	raw_input("Press Enter to continue...")
+	raw_input("\nPress Enter to continue...")
 
 def openSS(bookName, sheetName):
 	scope = ['https://spreadsheets.google.com/feeds']
@@ -47,7 +47,7 @@ def openSS(bookName, sheetName):
 
 def getCoordinates():
 	geolocator = Nominatim()
-	zipStr = str(raw_input("Zip Code: "))
+	zipStr = str(raw_input("\nNew location: "))
 	if len(zipStr) < 5:
 		# Python does not read leading zeros, so pad an extra '0'
 		# if x < 5 (length of zip codes)
