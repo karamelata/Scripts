@@ -124,7 +124,7 @@ def getWeather(when):
 		else:
 			cloudCover = jsonvalues['daily']['data'][0]['cloudCover']
 
-		if (time.strftime("%A") == "Sunday") and ('summary' in jsonvalues['daily']):
+		if 'summary' in jsonvalues['daily']:
 			weekSummary = jsonvalues['daily']['summary']
 		else:
 			weekSummary = ROGUE
