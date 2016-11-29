@@ -233,7 +233,8 @@ def userMode(choice):
 				unixTime += ONE_DAY
 				result = getWeather(unixTime)
 				printReport(result, False)
-			pressKeyToContinue()
+			if not FLAG_CALL:
+				pressKeyToContinue()
 
 		if choice == 9:
 			locStr = str(raw_input("\nNew location: "))
@@ -255,6 +256,7 @@ def callHelp():
 	print("-t    : Weather for tomorrow")
 	print("-y    : Weather for yesterday")
 	print("-m    : Time Machine weather")
+	print("-w    : Weekly Report")
 	print("-h    : Call this help menu again")
 	sys.exit()
 
@@ -283,7 +285,9 @@ def main():
 			userMode(3)
 		if mode == '-m':
 			userMode(4)
-		if mode == '-h' or mode == "-help":
+		if mode == '-w':
+			userMode(5)
+		if mode == '-h' or mode == "-help" or mode == "--help":
 			callHelp()
 	else:
 		userMode(-1)
