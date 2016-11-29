@@ -14,7 +14,8 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from collections import namedtuple
 
-Weather = namedtuple("Weather", "timestamp year month day weekDay condition minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
+Weather = namedtuple("Weather", "timestamp year month day weekDay condition\
+ 	minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
 
 ROGUE = '-'
 ONE_DAY = 86400
@@ -130,17 +131,21 @@ def getWeather(when):
 		else:
 			weekSummary = ROGUE
 
-		result = Weather(jsonvalues['currently']['time'],
-			weatherTime.strftime("%Y"), weatherTime.strftime("%m"), weatherTime.strftime("%d"), weatherTime.strftime("%a"),
-			 summary,
-			  apparentTemperatureMin,
-			   apparentTemperatureMax,
-			    precipProbability,
-			     precipVal,
-			      humidity,
-			       windSpeed,
-			        cloudCover,
-			         weekSummary)
+		result = Weather(
+			jsonvalues['currently']['time'],
+			 weatherTime.strftime("%Y"),
+			  weatherTime.strftime("%m"),
+			   weatherTime.strftime("%d"),
+			    weatherTime.strftime("%a"),
+			     summary,
+			      apparentTemperatureMin,
+			       apparentTemperatureMax,
+			        precipProbability,
+			         precipVal,
+			          humidity,
+			           windSpeed,
+			            cloudCover,
+			             weekSummary)
 	else:
 		print "Weather API call failed on " + time.strftime("%c")
 		sys.exit()
