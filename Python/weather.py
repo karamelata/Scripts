@@ -210,8 +210,11 @@ def userMode(choice):
 			result = getWeather(timestamp)
 			printReport(result, True)
 		if choice == 4:
-			print("-- Time Machine Weather Report --")
-			dateStr = raw_input("MM/DD/YYYY: ")
+			if len(sys.argv) > 1:
+				dateStr = str(sys.argv[2])
+			else:
+				print("-- Time Machine Weather Report --")
+				dateStr = raw_input("MM/DD/YYYY: ")
 			try:
 				dateStr += " 11:00PM"
 				timestamp = datetime.datetime.strptime(dateStr, "%m/%d/%Y %I:%M%p")
