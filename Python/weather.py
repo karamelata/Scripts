@@ -84,7 +84,6 @@ def getWeather(when):
 		weatherTime = datetime.datetime.fromtimestamp(when)
 
 	if 'timezone' in jsonvalues:
-		print("---- Weather for " + weatherTime.strftime('%B %d, %Y (%a)') + " ----")
 
 		if 'summary' not in jsonvalues['daily']['data'][0]:
 		    summary = ROGUE
@@ -147,14 +146,16 @@ def getWeather(when):
 		sys.exit()
 	return result
 
-def printReport(result):
-	print("Summary: " + str(result[5]))
+def printReport(result, pauseAfterPrinting):
+	weatherTime = datetime.datetime.fromtimestamp(int(result[0]))
+	print("---- " + weatherTime.strftime('%m-%d-%Y (%a)') + " ----")
+	print("Condition: " + str(result[5]))
 	print("Low: " + str(result[6]))
 	print("High: " + str(result[7]))
 	# if precipProb > 0
 	if(result[8] > 0):
 		print("Chance of " + str(result[9]) + ": " + str(result[8]))
-	if not FLAG_CALL:
+	if not FLAG_CALL and pauseAfterPrinting is True:
 		pressKeyToContinue()
 
 def getInteractiveChoice():
@@ -169,13 +170,14 @@ def getInteractiveChoice():
 		print("(2) Tomorrow")
 		print("(3) Yesterday")
 		print("(4) Weather from Time Machine")
-		print("(5) Change Location")
+		print("(5) Weekly Report")
+		print("(9) Change Location")
 		print("(0) Quit")
 		try:
 			choice = int(raw_input("Choice: "))
 		except ValueError:
 			continue
-		if choice < 0 or choice > 5:
+		if choice < 0 or choice > 5 and choice != 9:
 			continue
 		else:
 			return choice
@@ -191,17 +193,17 @@ def userMode(choice):
 		if choice == 1:
 			result = getWeather(0)
 			timestamp = datetime.datetime.now()
-			printReport(result)
+			printReport(result, True)
 		if choice == 2:
 			timestamp = int(time.time())
 			timestamp += ONE_DAY
 			result = getWeather(timestamp)
-			printReport(result)
+			printReport(result, True)
 		if choice == 3:
 			timestamp = int(time.time())
 			timestamp -= ONE_DAY
 			result = getWeather(timestamp)
-			printReport(result)
+			printReport(result, True)
 		if choice == 4:
 			print("-- Time Machine Weather Report --")
 			dateStr = raw_input("MM/DD/YYYY: ")
@@ -212,9 +214,20 @@ def userMode(choice):
 			except ValueError:
 				raise ValueError("Incorrect data format, should be MM/DD/YYYY")
 			result = getWeather(int(unixTime))
-			printReport(result)
-
+			printReport(result, True)
 		if choice == 5:
+			clearScreen()
+			unixTime = int(time.time())
+			result = getWeather(0)
+			print("\nThis Week: " + str(result[13].encode("utf-8", "ignore")) + "\n")
+			printReport(result, False)
+			for x in range(6):
+				unixTime += ONE_DAY
+				result = getWeather(unixTime)
+				printReport(result, False)
+			pressKeyToContinue()
+
+		if choice == 9:
 			locStr = str(raw_input("\nNew location: "))
 			weatherCoordinates = getCoordinates(locStr)
 			weatherLocation = getLocationInfo(weatherCoordinates)
@@ -269,4 +282,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
