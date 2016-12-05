@@ -154,12 +154,11 @@ def getWeather(when):
 def printReport(result, pauseAfterPrinting):
 	weatherTime = datetime.datetime.fromtimestamp(int(result[0]))
 	print("---- " + weatherTime.strftime('%m-%d-%Y (%a)') + " ----")
-	print("Condition: " + str(result[5]))
-	print("Low: " + str(result[6]))
-	print("High: " + str(result[7]))
+	print("Condition: " + str(result[5].encode("utf-8", "ignore")))
 	# if precipProb > 0
 	if(result[8] > 0):
 		print("Chance of " + str(result[9]) + ": " + str(result[8]))
+	print("Temp: " + str(int(result[7])) + "/" + str(int(result[6])) + "\n")
 	if not FLAG_CALL and pauseAfterPrinting is True:
 		pressKeyToContinue()
 
@@ -210,13 +209,13 @@ def userMode(choice):
 			result = getWeather(timestamp)
 			printReport(result, True)
 		if choice == 4:
-			if len(sys.argv) > 1:
+			if len(sys.argv) > 2:
 				dateStr = str(sys.argv[2])
 			else:
 				print("-- Time Machine Weather Report --")
 				dateStr = raw_input("MM/DD/YYYY: ")
 			try:
-				dateStr += " 11:00PM"
+				dateStr += " 6:00PM"
 				timestamp = datetime.datetime.strptime(dateStr, "%m/%d/%Y %I:%M%p")
 				unixTime = time.mktime(timestamp.timetuple())
 			except ValueError:
