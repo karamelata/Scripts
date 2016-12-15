@@ -83,24 +83,49 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+export EDITOR=emacs
+
+alias bp='nano ~/.zshrc'
+alias src='source ~/.zshrc'
 alias ls='ls -gh'
 alias l='ls'
+alias lf='find . -maxdepth 1 -type f'
+alias ldir='ls -d */'
 alias ~='cd ~'
 alias o=open
+alias oa='open -a'
 alias c=clear
 alias h=history
 alias x=exit
 alias path='echo -e ${PATH//:/\\n}'
 alias now=date
 alias zs='zsh_stats'
+alias temacs='$EDITOR --no-window-system'
+alias oew='$EDITOR'
+alias oe=temacs
+
+# Web Shortcuts
+alias chrome="open -a \"Google Chrome\""
+alias gh="chrome http://github.com/davemachado"
+alias email="chrome http://inbox.google.com"
+alias djs="python manage.py runserver"
 
 # Scripts
-alias wea="python ~/Github/Scripts/Python/weather.py"
+alias wea="cd ~/github/Scripts/Python && python weather.py"
+alias mkgo=". mkgo"
 
+# Networking
 # Stop after sending count ECHO_REQUEST packets #
 alias ping='ping -c 5'
 # Do not wait interval 1 second, go fast #
 alias fastping='ping -c 100 -s.2'
 alias ports='netstat -tulanp'
+
 # Syntax Highlighting installed from Homebrew
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Add Racket to PATH
+export PATH=/Applications/Racket\ v6.6/bin:$PATH
+# Add Python to PATH
+#export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
