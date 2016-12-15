@@ -105,6 +105,10 @@ alias temacs='$EDITOR --no-window-system'
 alias oew='$EDITOR'
 alias oe=temacs
 
+alias p2='python'
+alias p3='python3'
+alias gitc='/usr/local/bin clone'
+
 # Web Shortcuts
 alias chrome="open -a \"Google Chrome\""
 alias gh="chrome http://github.com/davemachado"
