@@ -86,6 +86,14 @@ source $ZSH/oh-my-zsh.sh
 
 export EDITOR=emacs
 
+# Add ~/bin to PATH
+export PATH=$PATH:~/bin
+# Add Racket to PATH
+export PATH=/Applications/Racket\ v6.6/bin:$PATH
+# Add Python to PATH
+#export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
+export MYBINPATH=/usr/Dave/bin:$PATH
+
 alias bp='nano ~/.zshrc'
 alias src='source ~/.zshrc'
 alias ls='ls -gh'
@@ -107,7 +115,7 @@ alias oe=temacs
 
 alias p2='python'
 alias p3='python3'
-alias gitc='/usr/local/bin clone'
+alias gitc='~/github/scripts/Shell/clone'
 
 # Web Shortcuts
 alias chrome="open -a \"Google Chrome\""
@@ -128,8 +136,3 @@ alias ports='netstat -tulanp'
 
 # Syntax Highlighting installed from Homebrew
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# Add Racket to PATH
-export PATH=/Applications/Racket\ v6.6/bin:$PATH
-# Add Python to PATH
-#export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
