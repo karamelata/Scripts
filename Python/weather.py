@@ -17,6 +17,8 @@ from collections import namedtuple
 Weather = namedtuple("Weather", "timestamp year month day weekDay condition\
  	minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
 
+apiKeyFile = '/Users/Dave/keys/darkSky_api.txt'
+gsJSONFile = '/Users/Dave/keys/gs_client.json'
 ROGUE = '-'
 ONE_DAY = 86400
 DEFAULT_COOR = "42.6751,-71.4828"
@@ -28,7 +30,7 @@ if len(sys.argv) > 1:
 else:
 	FLAG_CALL = False
 
-API_KEY = open('darkSky_api.txt', 'r').readline()
+API_KEY = open(apiKeyFile, 'r').readline()
 
 def clearScreen():
 	if (platform.system() == "Windows"):
@@ -41,7 +43,7 @@ def pressKeyToContinue():
 
 def openSS(bookName, sheetName):
 	scope = ['https://spreadsheets.google.com/feeds']
-	credentials = ServiceAccountCredentials.from_json_keyfile_name('client.json', scope)
+	credentials = ServiceAccountCredentials.from_json_keyfile_name(gsJSONFile, scope)
 	gc = gspread.authorize(credentials)
 	wks = gc.open(bookName).worksheet(sheetName)
 	return wks
