@@ -87,12 +87,11 @@ source $ZSH/oh-my-zsh.sh
 export EDITOR=emacs
 
 # Add ~/bin to PATH
-export PATH=$PATH:~/bin
+export PATH=~/bin:$PATH
 # Add Racket to PATH
 export PATH=/Applications/Racket\ v6.6/bin:$PATH
 # Add Python to PATH
 #export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
-export MYBINPATH=/usr/Dave/bin:$PATH
 
 alias bp='nano ~/.zshrc'
 alias src='source ~/.zshrc'
@@ -103,6 +102,7 @@ alias ldir='ls -d */'
 alias ~='cd ~'
 alias o=open
 alias oa='open -a'
+alias od='open .'
 alias c=clear
 alias h=history
 alias x=exit
