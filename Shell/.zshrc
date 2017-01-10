@@ -115,7 +115,6 @@ alias oe=temacs
 
 alias p2='python'
 alias p3='python3'
-alias gitc='~/github/scripts/Shell/clone'
 
 # Web Shortcuts
 alias chrome="open -a \"Google Chrome\""
@@ -124,7 +123,6 @@ alias email="chrome http://inbox.google.com"
 alias djs="python manage.py runserver"
 
 # Scripts
-alias wea="cd ~/github/Scripts/Python && python weather.py"
 alias mkgo=". mkgo"
 
 # Networking
@@ -133,6 +131,7 @@ alias ping='ping -c 5'
 # Do not wait interval 1 second, go fast #
 alias fastping='ping -c 100 -s.2'
 alias ports='netstat -tulanp'
-
+alias net='nmap -sn 192.168.1.0/24'
+alias xip='curl https://myexternalip.com/raw'
 # Syntax Highlighting installed from Homebrew
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
