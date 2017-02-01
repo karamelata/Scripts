@@ -92,6 +92,8 @@ export PATH=~/bin:$PATH
 export PATH=/Applications/Racket\ v6.6/bin:$PATH
 # Add Python to PATH
 #export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
+# Add pwd to PATH
+export PATH=.:$PATH
 
 alias bp='nano ~/.zshrc'
 alias src='source ~/.zshrc'
@@ -112,9 +114,11 @@ alias zs='zsh_stats'
 alias temacs='$EDITOR --no-window-system'
 alias oew='$EDITOR'
 alias oe=temacs
+alias trashit='rm -rf ~/.Trash/'
 
 alias p2='python'
 alias p3='python3'
+alias mongod='mongod --dbpath=/Users/Dave/github/data'
 
 # Web Shortcuts
 alias chrome="open -a \"Google Chrome\""
@@ -135,3 +139,4 @@ alias net='nmap -sn 192.168.1.0/24'
 alias xip='curl https://myexternalip.com/raw'
 # Syntax Highlighting installed from Homebrew
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+export JAVA_HOME=$(/usr/libexec/java_home)
