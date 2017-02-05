@@ -4,7 +4,7 @@
 import json
 import os
 import platform
-import urllib
+import urllib2
 
 alphaSet = ['A', 'B', 'C', 'D']
 results = []
@@ -32,9 +32,12 @@ def printJSON(data):
 	print(str)
 
 def getQuestions():
-	url = 'https://s4ycy5dmu8.execute-api.us-east-1.amazonaws.com/api?num='\
+
+	url = 'https://api.symerit.com/?num='\
 		+ NUM_ROUNDS
-	response = urllib.urlopen(url).read()
+	req = urllib2.Request(url)
+	req.add_header('x-api-key','123456')
+	response = urllib2.urlopen(req).read()
 	jsonvalues = json.loads(response)
 	return jsonvalues
 
@@ -47,7 +50,7 @@ def playGame():
 		ques = each['question']
 		correctAns = each['answer']
 
-		print("----- QUESTION " + str(count) + "/" + NUM_ROUNDS + " -----")
+		print("----- QUESTION " + str(count) + " / " + NUM_ROUNDS + " -----")
 		print("-----   Score: " + str(score) + "   -----\n")
 		print(str(ques) + "\n")
 		for x in alphaSet:
@@ -68,17 +71,25 @@ def playGame():
 		pressKeyToContinue()
 	clearScreen()
 	print("------ GAME OVER ------")
-	print("Final Score: " + str(score))
+	res = score / float(NUM_ROUNDS)
+	print("Final Score: " + str(score) + " or " + str(round(res, 2)) + "%")
 	print("\nROUND\tRESULT")
 	for each in results:
 		print(str(each['number']) + "\t" + each['result'])
+	ret = raw_input("Play again? (y)es or (n)o : ")
+	if ret.upper() == 'Y':
+		return True
+	else:
+		return False
 
 def main():
 	global NUM_ROUNDS
 	clearScreen()
 	callMenu()
-	NUM_ROUNDS = raw_input("\nNumber of Rounds: ")
-	playGame()
+	while True:
+		NUM_ROUNDS = raw_input("\nNumber of Rounds: ")
+		if (playGame() == False):
+			break
 
 if __name__ == '__main__':
     main()
