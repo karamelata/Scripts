@@ -252,7 +252,6 @@ def callHelp():
 	print("-- WEATHER DATA --")
 	print("call " + str(sys.argv[0]) + " -X: ")
 	print("-a    : auto-add daily weather to Google Sheet")
-	print("-i    : Interactive Mode")
 	print("-n    : Weather for today")
 	print("-t    : Weather for tomorrow")
 	print("-y    : Weather for yesterday")
@@ -270,14 +269,14 @@ def autoMode():
 def main():
 	global LOCATION_COOR
 	global LOCATION_INFO
+	global FLAG_CALL
+
 	LOCATION_COOR = DEFAULT_COOR
 	LOCATION_INFO = getLocationInfo(LOCATION_COOR)
 	if FLAG_CALL:
 		mode = str(sys.argv[1])
 		if mode == '-a':
 			autoMode()
-		if mode == '-i':
-			userMode(-1)
 		if mode == '-n':
 			userMode(1)
 		if mode == '-t':
@@ -290,6 +289,9 @@ def main():
 			userMode(5)
 		if mode == '-h' or mode == "-help" or mode == "--help":
 			callHelp()
+		else:
+			FLAG_CALL = False
+			userMode(-1)
 	else:
 		userMode(-1)
 
