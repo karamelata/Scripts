@@ -33,8 +33,8 @@ def printJSON(data):
 
 def getQuestions():
 
-	url = 'https://api.symerit.com/?num='\
-		+ NUM_ROUNDS
+	url = 'https://api.symerit.com/?count='\
+		+ NUM_ROUNDS + '&key=8675309'
 	req = urllib2.Request(url)
 	req.add_header('x-api-key','123456')
 	response = urllib2.urlopen(req).read()
