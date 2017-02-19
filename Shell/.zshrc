@@ -118,7 +118,7 @@ alias trashit='rm -rf ~/.Trash/'
 
 alias p2='python'
 alias p3='python3'
-alias mongod='mongod --dbpath=/Users/Dave/github/data'
+alias mongod='mongod --dbpath /Users/Dave/.mongodb/data'
 
 # Web Shortcuts
 alias chrome="open -a \"Google Chrome\""
