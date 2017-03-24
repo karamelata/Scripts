@@ -89,11 +89,15 @@ export EDITOR=emacs
 # Add ~/bin to PATH
 export PATH=~/bin:$PATH
 # Add Racket to PATH
-export PATH=/Applications/Racket\ v6.6/bin:$PATH
+export PATH=/Applications/Racket\ v6.7/bin:$PATH
 # Add Python to PATH
 #export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
 # Add pwd to PATH
 export PATH=.:$PATH
+# add GO
+export PATH=$PATH:/usr/local/opt/go/libexec/bin
+# add Rust
+export PATH="$HOME/.cargo/bin:$PATH"
 
 alias bp='nano ~/.zshrc'
 alias src='source ~/.zshrc'
@@ -140,3 +144,4 @@ alias xip='curl https://myexternalip.com/raw'
 # Syntax Highlighting installed from Homebrew
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export JAVA_HOME=$(/usr/libexec/java_home)
+export GEM_HOME=$HOME/.gem
