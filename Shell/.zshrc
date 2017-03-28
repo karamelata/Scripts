@@ -119,6 +119,7 @@ alias temacs='$EDITOR --no-window-system'
 alias oew='$EDITOR'
 alias oe=temacs
 alias trashit='rm -rf ~/.Trash/'
+alias gupdate='git fetch upstream && git rebase upstream/master'
 
 alias p2='python'
 alias p3='python3'
