@@ -1,9 +1,9 @@
 from sys import argv
 import os;
-home_dir = '/Users/Dave/GitHub/Scripts/Python/exp/testDir'
+home_dir = '/Users/Dave/github/movies'
 
 
-mylist = open("output.txt", 'r')
+mylist = open("/Users/Dave/Desktop/new.txt", 'r')
 for folder in mylist:
 	folder = folder.strip()
 	newFolder = home_dir+'/'+folder
