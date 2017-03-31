@@ -61,6 +61,7 @@ def get_existing_entries(wks):
 def writeToSS(wks, movie):
     global add_count
     global skip_count
+    global existing_entries
     title = movie[0]
     api_response = movie[1]
     try:
@@ -76,6 +77,7 @@ def writeToSS(wks, movie):
         print("Adding to workbook...")
     wks.append_row(movie)
     add_count += 1
+    existing_entries.append(title)
     print(title + " added." + "\n")
 
 
