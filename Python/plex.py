@@ -1,5 +1,5 @@
 # !/usr/bin/python
-# $ plex.py [PATH_TO_MOVIES] [-d]
+# $ plex.py [PATH_TO_MOVIES] [-f]*
 import os
 import sys
 import urllib
@@ -9,13 +9,16 @@ import urllib.request
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from collections import namedtuple
+existing_entries = []
 Movie = namedtuple(
     "Movie", "title director genre time rating imdbMeter rottenMeter rottenUserMeter tomatoConsensus releaseYear boxOffice plot imdbURL rottenURL poster")
 ROGUE = '-'
+add_count = 0
+skip_count = 0
 # reload(sys)
 # sys.setdefaultencoding('utf8')
 KEY_FILE = "/home/dave/keys/gs_client.json"
-BOOK_NAME = "test"
+BOOK_NAME = "Plex Data"
 
 
 class Logger:
@@ -44,16 +47,26 @@ def openSS(book_name):
         KEY_FILE, scope)
     gc = gspread.authorize(credentials)
     wks = gc.open(book_name).sheet1
+    get_existing_entries(wks)
     return wks
 
 
+def get_existing_entries(wks):
+    global existing_entries
+    existing_entries = wks.col_values(1)
+    existing_entries.pop(0)     # remove header ("Movie Title") from list
+    return
+
+
 def writeToSS(wks, movie):
+    global add_count
+    global skip_count
     title = movie[0]
     api_response = movie[1]
     try:
-        cell = wks.find(title)
-        if(cell.col == 1):
+        if title in existing_entries:
             print("Already in workbook: " + title + "\n")
+            skip_count += 1
             return
     except gspread.exceptions.CellNotFound:
         pass
@@ -62,10 +75,11 @@ def writeToSS(wks, movie):
     else:
         print("Adding to workbook...")
     wks.append_row(movie)
+    add_count += 1
     print(title + " added." + "\n")
 
 
-def getMovie(title, year):
+def process_movie(title, year):
     url = 'http://www.omdbapi.com/?plot=short&r=json&tomatoes=true&t=' + \
         str(title) + '&y=' + str(year)
     url = url.replace(' ', "%20")
@@ -100,8 +114,9 @@ def getMovie(title, year):
         imdbURL = 'http://www.imdb.com/title/' + jsonvalues['imdbID']
         tomatoURL = jsonvalues['tomatoURL']
         poster = jsonvalues['Poster']
-        movie = Movie(title, director, genre, time, rated, imdb, tomatoScore, tomatoUser,
-                      tomatoSummary, year, boxOffice, plot, imdbURL, tomatoURL, poster)
+        movie = Movie(title, director, genre, time, rated, imdb, tomatoScore,
+                      tomatoUser, tomatoSummary, year, boxOffice, plot,
+                      imdbURL, tomatoURL, poster)
         for e in movie:
             if e == "N/A":
                 e = ROGUE
@@ -124,31 +139,35 @@ def main():
     worksheet = openSS(BOOK_NAME)
 
     dirlist = []
-    if len(sys.argv) > 2 and sys.argv[2] == "-d":
-        for item in os.listdir(root):
-            dirlist.append(item)
-        numOfDir = len(dirlist)
-    else:
+    if len(sys.argv) >= 2 and sys.argv[2] == "-f":
+        #   it's a file listing all the movies
         filen = open(root, "r")
         for line in filen:
             dirlist.append(line)
         numOfDir = len(dirlist)
+    else:
+        #  the passed-in argument is a directory
+        for item in sorted(os.listdir(root)):
+            dirlist.append(item)
+        numOfDir = len(dirlist)
 
     for x in range(numOfDir):
-        title = dirlist[x][:-7]
-        year = (dirlist[x][-5:])[:-1]
+        title = dirlist[x][:-7]  # remove year from dir name
+        year = (dirlist[x][-5:])[:-1]  # remove title from dir name
         print(str(x + 1) + "/" + str(numOfDir))
         print("Processing " + title + "...")
-        movie = getMovie(title, year)
+        movie = process_movie(title, year)
         sys.stdout.flush()
-        # Reauth every 100 iterations
-        if(x % 50 == 0):
+        # Reauth every 50 iterations
+        if(add_count % 50 == 0):
             worksheet = openSS(BOOK_NAME)
         writeToSS(worksheet, movie)
+
 
 if __name__ == '__main__':
     start_time = time.time()
     print((time.strftime("%m/%d/%Y")) + " " +
           (time.strftime("%H:%M:%S")) + "\n")
     main()
+    print("%s added, %s skipped." % (str(add_count), str(skip_count)))
     print("Execution Time: %s seconds" % (time.time() - start_time))
