@@ -11,7 +11,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from collections import namedtuple
 existing_entries = []
 Movie = namedtuple(
-    "Movie", "title director genre time rating imdbMeter rottenMeter rottenUserMeter tomatoConsensus releaseYear boxOffice plot imdbURL rottenURL poster")
+    "Movie", "title director genre time rating imdbMeter rottentomatoes metacritic releaseYear boxOffice plot imdbURL poster")
 ROGUE = '-'
 add_count = 0
 skip_count = 0
@@ -82,7 +82,7 @@ def writeToSS(wks, movie):
 
 
 def process_movie(title, year):
-    url = 'http://www.omdbapi.com/?plot=short&r=json&tomatoes=true&t=' + \
+    url = 'http://www.omdbapi.com/?plot=short&r=json&t=' + \
         str(title) + '&y=' + str(year)
     url = url.replace(' ', "%20")
     print(url)
@@ -107,25 +107,32 @@ def process_movie(title, year):
         time = ''.join(time.split())[:-3]
         rated = jsonvalues['Rated']
         imdb = jsonvalues['imdbRating']
-        tomatoScore = jsonvalues['tomatoMeter']
-        tomatoUser = jsonvalues['tomatoUserMeter']
-        tomatoSummary = jsonvalues['tomatoConsensus']
+        if 'Ratings' in jsonvalues.keys():
+            if len(jsonvalues['Ratings']) > 1:
+                tomatoes = jsonvalues['Ratings'][1]["Value"][:-1]  # remove '%'
+            else:
+                tomatoes = ROGUE
+        else:
+            tomatoes = ROGUE
+        metacritic = jsonvalues['Metascore']
         year = jsonvalues['Year']
-        boxOffice = jsonvalues['BoxOffice']
+        if 'BoxOffice' in jsonvalues.keys():
+            boxOffice = jsonvalues['BoxOffice']
+        else:
+            boxOffice = ROGUE
         plot = jsonvalues['Plot']
         imdbURL = 'http://www.imdb.com/title/' + jsonvalues['imdbID']
-        tomatoURL = jsonvalues['tomatoURL']
         poster = jsonvalues['Poster']
-        movie = Movie(title, director, genre, time, rated, imdb, tomatoScore,
-                      tomatoUser, tomatoSummary, year, boxOffice, plot,
-                      imdbURL, tomatoURL, poster)
+        movie = Movie(title, director, genre, time, rated, imdb, tomatoes,
+                      metacritic, year, boxOffice, plot,
+                      imdbURL, poster)
         for e in movie:
             if e == "N/A":
                 e = ROGUE
         print(title + " processed.")
     else:
         movie = Movie(title, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE,
-                      ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE)
+                      ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE, ROGUE)
         print(title + " failed!")
     return movie
 
@@ -150,6 +157,8 @@ def main():
     else:
         #  the passed-in argument is a directory
         for item in sorted(os.listdir(root)):
+            item = item.replace(' ', '+')
+            item = item.replace('&', "%26")
             dirlist.append(item)
         numOfDir = len(dirlist)
 
