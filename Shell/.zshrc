@@ -84,7 +84,7 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export EDITOR=emacs
+export EDITOR=vim
 
 # Add ~/bin to PATH
 export PATH=~/bin:$PATH
@@ -94,18 +94,20 @@ export PATH=/Applications/Racket\ v6.7/bin:$PATH
 #export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages
 # Add pwd to PATH
 export PATH=.:$PATH
-# add GO
-export PATH=$PATH:/usr/local/opt/go/libexec/bin
+# add Go
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
 # add Rust
 export PATH="$HOME/.cargo/bin:$PATH"
 
-alias bp='nano ~/.zshrc'
+alias bp='$EDITOR ~/.zshrc'
 alias src='source ~/.zshrc'
 alias ls='ls -gh'
 alias l='ls'
 alias lf='find . -maxdepth 1 -type f'
 alias ldir='ls -d */'
 alias ~='cd ~'
+alias e=$EDITOR
 alias o=open
 alias oa='open -a'
 alias od='open .'
@@ -115,9 +117,6 @@ alias x=exit
 alias path='echo -e ${PATH//:/\\n}'
 alias now=date
 alias zs='zsh_stats'
-alias temacs='$EDITOR --no-window-system'
-alias oew='$EDITOR'
-alias oe=temacs
 alias trashit='rm -rf ~/.Trash/'
 alias gupdate='git fetch upstream && git rebase upstream/master'
 
