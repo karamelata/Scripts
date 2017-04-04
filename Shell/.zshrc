@@ -85,6 +85,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 export EDITOR=vim
+export SCRIPTS="$HOME/github/Scripts/"
 
 # Add ~/bin to PATH
 export PATH=~/bin:$PATH
@@ -123,6 +124,8 @@ alias gupdate='git fetch upstream && git rebase upstream/master'
 alias p2='python'
 alias p3='python3'
 alias mongod='mongod --dbpath /Users/Dave/.mongodb/data'
+alias gcc='gcc-6'
+alias g++='g++-6'
 
 # Web Shortcuts
 alias chrome="open -a \"Google Chrome\""
@@ -132,6 +135,8 @@ alias djs="python manage.py runserver"
 
 # Scripts
 alias mkgo=". mkgo"
+alias vpnc="osascript ~/bin/vpn-connect"
+alias vpnd="osascript ~/bin/vpn-disconnect"
 
 # Networking
 # Stop after sending count ECHO_REQUEST packets #
