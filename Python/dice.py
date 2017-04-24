@@ -7,8 +7,12 @@ from random import randint
 from sys import argv
 
 def rollDice(numOfDice, numOfSides):
+	total = 0
 	for each in xrange(numOfDice):
-		print(randint(1, numOfSides))
+		roll = randint(1, numOfSides)
+		total += roll
+		print(roll)
+	print("\nTotal: " + str(total))
 
 if len(argv) > 1:
 	numDice = int(argv[1])
