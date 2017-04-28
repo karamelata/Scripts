@@ -121,6 +121,7 @@ alias now=date
 alias zs='zsh_stats'
 alias trashit='rm -rf ~/.Trash/'
 alias gupdate='git fetch upstream && git rebase upstream/master'
+alias bup='brew update && brew upgrade'
 
 alias p2='python'
 alias p3='python3'
@@ -151,3 +152,12 @@ alias xip='curl https://myexternalip.com/raw'
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export JAVA_HOME=$(/usr/libexec/java_home)
 export GEM_HOME=$HOME/.gem
+
+# Add Z to env
+. /usr/local/etc/profile.d/z.sh
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
+# added by travis gem
+[ -f /Users/dave/.travis/travis.sh ] && source /Users/dave/.travis/travis.sh
