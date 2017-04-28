@@ -1,0 +1,7 @@
+#!/bin/bash
+DATE=`date +%Y-%m-%d_%H%M%S`
+LOG_FILE=rsync_$DATE.log
+LOG_LOCAL=/home/dave/data-drive/Data/Logs/ExternalHDD/$LOG_FILE
+LOG_REMOTE=/home/dave/usb/Data/Logs/ExternalHDD/$LOG_FILE
+rsync -avh /var/hda/files/drives/DATA/Data/ /home/dave/usb/Data/ --progress --delete --log-file=$LOG_LOCAL
+cp $LOG_LOCAL $LOG_REMOTE
