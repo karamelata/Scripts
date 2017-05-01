@@ -2,6 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
+DEFAULT_USER="dave"
 export ZSH=/Users/Dave/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
