@@ -4,6 +4,7 @@
 syntax enable           " enable syntax processing
 set background=dark     " Set dark background for Solarized
 colorscheme solarized   " Set theme to Solarized
+set termguicolors
 set backspace=2         " backspace over everything in insert mode
 set tabstop=4           " number of visual spaces per TAB
 set softtabstop=4       " number of spaces in tab when editing

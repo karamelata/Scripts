@@ -123,6 +123,8 @@ alias zs='zsh_stats'
 alias trashit='rm -rf ~/.Trash/'
 alias gupdate='git fetch upstream && git rebase upstream/master'
 alias bup='brew update && brew upgrade'
+alias vim=nvim
+alias vi=vim
 
 alias p2='python'
 alias p3='python3'
