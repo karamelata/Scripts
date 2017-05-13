@@ -8,7 +8,7 @@ FAIL_FLAG = False
 
 db = pymysql.connect(host="localhost",
                      user="root",
-                     passwd= sys.argv[1],
+                     passwd=sys.argv[1],
                      db="plex")
 
 # you must create a Cursor object. It will let
@@ -71,7 +71,7 @@ except:
     # Rollback in case there is any error
     db.rollback()
 
-plex = PlexServer('http://192.168.1.88:32400', os.environ['PLEX_TOKEN'])
+plex = PlexServer('http://127.0.0.1:32400', os.environ['PLEX_TOKEN'])
 movies = plex.library.section('Movies')
 for x in movies.all():
     if check_IN_DB(x.ratingKey) != None:
