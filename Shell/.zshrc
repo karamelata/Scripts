@@ -105,6 +105,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 alias bp='$EDITOR ~/.zshrc'
 alias src='source ~/.zshrc'
 alias vp='$EDITOR ~/.vimrc'
+alias tp='$EDITOR ~/.tmux.conf'
 alias ls='ls -gh'
 alias l='ls'
 alias lf='find . -maxdepth 1 -type f'
