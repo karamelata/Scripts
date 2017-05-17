@@ -34,12 +34,12 @@ def check_in_table(id_to_check, table_name):
 
 
 def insert_movie(x):
-    sql = "INSERT INTO movies (plex_id, title, director, genre, studio, duration_min, duration_ms, rating, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO movies (plex_id, title, title_sort, director, genre, studio, duration_min, duration_ms, rating, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     try:
         genre = ""
         for e in x.genres:
             genre += e.tag + ','
-        args = (x.ratingKey, x.titleSort.encode('utf-8'), x.directors[0].tag.encode('utf-8'), genre[:-1], str(
+        args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), x.directors[0].tag.encode('utf-8'), genre[:-1], str(
                 x.studio), x.duration / 60000, x.duration, str(x.contentRating), x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
@@ -61,6 +61,7 @@ def update_movies():
       id              int unsigned NOT NULL auto_increment,
       plex_id         int unsigned NOT NULL,
       title           varchar(255) NOT NULL,
+      title_sort      varchar(255) NOT NULL,
       director        varchar(255) NOT NULL,
       genre           varchar(255) NOT NULL,
       studio          varchar(255) NOT NULL,
@@ -98,12 +99,12 @@ def update_movies():
 
 
 def insert_show(x):
-    sql = "INSERT INTO tv_shows (plex_id, title, seasons, episodes, rating, genre, studio, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO tv_shows (plex_id, title, title_sort, seasons, episodes, rating, genre, studio, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     try:
         genre = ""
         for e in x.genres:
             genre += e.tag + ','
-        args = (x.ratingKey, x.titleSort.encode('utf-8'), len(x.seasons()), len(x.episodes()),
+        args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), len(x.seasons()), len(x.episodes()),
                 str(x.contentRating), genre[:-1], x.studio, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
@@ -124,6 +125,7 @@ def update_tv_shows():
       id              int unsigned NOT NULL auto_increment,
       plex_id         int unsigned NOT NULL,
       title        varchar(255) NOT NULL,
+      title_sort        varchar(255) NOT NULL,
       seasons           int unsigned NOT NULL,
       episodes           int unsigned NOT NULL,
       rating          varchar(255) NOT NULL,
@@ -148,11 +150,9 @@ def update_tv_shows():
         print('Got error {!r}, errno is {}'.format(e, e.args[0])) 
     shows = plex.library.section('TV Shows')
     for show in shows.all():
-        update_tv_episodes(show.episodes())
-        if check_in_table(show.ratingKey, 'tv_shows') is not None:
-            continue
-        else:
+        if check_in_table(show.ratingKey, 'tv_shows') is None:
             insert_show(show)
+        update_tv_episodes(show.episodes())
 
     if FAIL_FLAG:
         sys.exit(1)
@@ -161,9 +161,9 @@ def update_tv_shows():
 
 
 def insert_episode(x):
-    sql = "INSERT INTO tv_episodes (plex_id, title, season, ep_index, show_id, duration_min, duration_ms, rating, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO tv_episodes (plex_id, title, title_sort, season, ep_index, show_id, duration_min, duration_ms, rating, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     try:
-        args = (x.ratingKey, x.titleSort.encode('utf-8'), x.parentIndex, x.index,
+        args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), x.parentIndex, x.index,
                 x.grandparentRatingKey, x.duration / 60000, x.duration, x.contentRating, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
@@ -186,6 +186,7 @@ def update_tv_episodes(episodes):
       id              int unsigned NOT NULL auto_increment,
       plex_id         int unsigned NOT NULL,
       title        varchar(255) NOT NULL,
+      title_sort        varchar(255) NOT NULL,
       season           int unsigned NOT NULL,
       ep_index           int unsigned NOT NULL,
       show_id           int unsigned NOT NULL,
