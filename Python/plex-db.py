@@ -18,10 +18,12 @@ db = pymysql.connect(host="localhost",
 cur = db.cursor()
 plex = PlexServer('http://127.0.0.1:32400', os.environ['PLEX_TOKEN'])
 
+
 def clean_up():
     cur.close()
     db.close()
     sys.exit(0)
+
 
 def check_in_table(id_to_check, table_name):
     sql = "SELECT `id`, `plex_id` FROM %s WHERE `plex_id`=%s" % (
@@ -38,10 +40,9 @@ def insert_movie(x):
             genre += e.tag + ','
         args = (x.ratingKey, x.titleSort.encode('utf-8'), x.directors[0].tag.encode('utf-8'), genre[:-1], str(
                 x.studio), x.duration / 60000, x.duration, str(x.contentRating), x.rating, x.year, x.summary.encode('utf-8'))
-        # print(args)
         cur.execute(sql, args)
         # Commit your changes in the database
-        print("Inserted: " + x.titleSort)
+        print("Inserted MV: %s" % (x.titleSort))
         db.commit()
     except pymysql.ProgrammingError as e:
         # Rollback in case there is any error
@@ -67,7 +68,7 @@ def update_movies():
       rating          varchar(255) NOT NULL,
       score           float(8) NOT NULL,
       year            int NOT NULL,
-      summary         varchar(1024) NOT NULL,
+      summary         text NOT NULL,
       PRIMARY KEY     (id)
     );
     """
@@ -76,7 +77,6 @@ def update_movies():
         # Execute the SQL command
         cur.execute(sql)
         # Commit your changes in the database
-        db.commit()
     except:
         # Rollback in case there is any error
         db.rollback()
@@ -88,14 +88,11 @@ def update_movies():
         else:
             insert_movie(x)
 
-    if not FAIL_FLAG:
+    if FAIL_FLAG:
+        sys.exit(1)
+    else:
         db.commit()
 
-    # Use all the SQL you like
-    # cur.execute("SELECT * FROM movies")
-    # print all the first cell of all the rows
-    # for row in cur.fetchall():
-    #    print(row)
 
 def insert_show(x):
     sql = "INSERT INTO tv_shows (plex_id, title, seasons, episodes, rating, genre, studio, score, year, summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -103,12 +100,11 @@ def insert_show(x):
         genre = ""
         for e in x.genres:
             genre += e.tag + ','
-        args = (x.ratingKey, x.titleSort.encode('utf-8'), len(x.seasons()), len(x.episodes()), str(x.contentRating), genre[:-1], x.studio, x.rating, x.year, x.summary.encode('utf-8'))
-        # print(args)
+        args = (x.ratingKey, x.titleSort.encode('utf-8'), len(x.seasons()), len(x.episodes()),
+                str(x.contentRating), genre[:-1], x.studio, x.rating, x.year, x.summary.encode('utf-8'))
         cur.execute(sql, args)
         # Commit your changes in the database
-        print("Inserted: " + x.titleSort)
-        db.commit()
+        print("Inserted SH: %s" % (x.titleSort))
     except pymysql.ProgrammingError as e:
         # Rollback in case there is any error
         db.rollback()
@@ -132,7 +128,7 @@ def update_tv_shows():
       studio          varchar(255) NOT NULL,
       score           float(8) NOT NULL,
       year            int NOT NULL,
-      summary         varchar(1024) NOT NULL,
+      summary         text NOT NULL,
       PRIMARY KEY     (id)
     );
     """
@@ -142,25 +138,83 @@ def update_tv_shows():
         cur.execute(sql)
         # Commit your changes in the database
         db.commit()
-    except:
-        # Rollback in case there is any error
+    except pymysql.ProgrammingError as e:
         db.rollback()
-
+        print('Got error {!r}, errno is {}'.format(e, e.args[0])) 
     shows = plex.library.section('TV Shows')
     for show in shows.all():
+        update_tv_episodes(show.episodes())
         if check_in_table(show.ratingKey, 'tv_shows') is not None:
             continue
         else:
             insert_show(show)
 
-    if not FAIL_FLAG:
+    if FAIL_FLAG:
+        sys.exit(1)
+    else:
         db.commit()
 
-    # Use all the SQL you like
-    # cur.execute("SELECT * FROM movies")
-    # print all the first cell of all the rows
-    # for row in cur.fetchall():
-    #    print(row)
+
+def insert_episode(x):
+    sql = "INSERT INTO tv_episodes (plex_id, title, season, ep_index, show_id, duration_min, duration_ms, rating, score, year, summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    try:
+        args = (x.ratingKey, x.titleSort.encode('utf-8'), x.parentIndex, x.index,
+                x.grandparentRatingKey, x.duration / 60000, x.duration, x.contentRating, x.rating, x.year, x.summary.encode('utf-8'))
+        cur.execute(sql, args)
+        # Commit your changes in the database
+        print("Inserted EP (%s): %s" % (x.grandparentTitle, x.titleSort))
+    except pymysql.ProgrammingError as e:
+        # Rollback in case there is any error
+        db.rollback()
+        print('Got error {!r}, errno is {}'.format(e, e.args[0]))
+        FAIL_FLAG = True
+        return False
+    db.commit()
+    return True
+
+
+def update_tv_episodes(episodes):
+    sql = """
+    CREATE TABLE IF NOT EXISTS tv_episodes
+    (
+      id              int unsigned NOT NULL auto_increment,
+      plex_id         int unsigned NOT NULL,
+      title        varchar(255) NOT NULL,
+      season           int unsigned NOT NULL,
+      ep_index           int unsigned NOT NULL,
+      show_id           int unsigned NOT NULL,
+      duration_min          int unsigned NOT NULL,
+      duration_ms           int unsigned NOT NULL,
+      rating          varchar(255) NOT NULL,
+      score           float(8) DEFAULT 0,
+      year            int DEFAULT 0,
+      summary         text NOT NULL,
+      PRIMARY KEY     (id)
+    );
+    """
+
+    try:
+        # Execute the SQL command
+        cur.execute(sql)
+        # Commit your changes in the database
+        db.commit()
+    except pymysql.ProgrammingError as e:
+        # Rollback in case there is any error
+        db.rollback()
+        print('Got error {!r}, errno is {}'.format(e, e.args[0]))
+
+    for ep in episodes:
+        if check_in_table(ep.ratingKey, 'tv_episodes') is not None:
+            continue
+        else:
+            insert_episode(ep)
+    return
+
+    if FAIL_FLAG:
+        sys.exit(1)
+    else:
+        db.commit()
+
 
 update_movies()
 update_tv_shows()
