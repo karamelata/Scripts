@@ -85,7 +85,12 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export EDITOR=vim
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+export EDITOR=nvim
+export vim=nvim
+
 export SCRIPTS="$HOME/github/Scripts/"
 
 # Add ~/bin to PATH
@@ -124,8 +129,6 @@ alias zs='zsh_stats'
 alias trashit='rm -rf ~/.Trash/'
 alias gupdate='git fetch upstream && git rebase upstream/master'
 alias bup='brew update && brew upgrade'
-alias vim=nvim
-alias vi=vim
 
 alias p2='python'
 alias p3='python3'
@@ -143,6 +146,8 @@ alias djs="python manage.py runserver"
 alias mkgo=". mkgo"
 alias vpnc="osascript ~/bin/vpn-connect"
 alias vpnd="osascript ~/bin/vpn-disconnect"
+
+alias svr="ssh svr -t \"tmux attach || tmux\" -u"
 
 # Networking
 # Stop after sending count ECHO_REQUEST packets #
@@ -165,3 +170,4 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 # added by travis gem
 [ -f /Users/dave/.travis/travis.sh ] && source /Users/dave/.travis/travis.sh
+
