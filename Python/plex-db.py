@@ -8,19 +8,18 @@ import datetime
 
 FAIL_FLAG = False
 
-pswd = getpass()
+pswd = getpass("MySQL Password:")
 db = pymysql.connect(host="localhost",
                      user="root",
                      passwd=pswd,
                      db="plex")
 
-# you must create a Cursor object. It will let
-#  you execute all the queries you need
 cur = db.cursor()
 plex = PlexServer('http://127.0.0.1:1234', os.environ['PLEX_TOKEN'])
 
 
 def clean_up():
+    db.commit()
     cur.close()
     db.close()
     sys.exit(0)
@@ -42,11 +41,8 @@ def insert_movie(x):
         args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), x.directors[0].tag.encode('utf-8'), genre[:-1], str(
                 x.studio), x.duration / 60000, x.duration, str(x.contentRating), x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
-        # Commit your changes in the database
         print("Inserted MV: %s" % (x.title))
-        db.commit()
     except pymysql.ProgrammingError as e:
-        # Rollback in case there is any error
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         FAIL_FLAG = True
@@ -78,12 +74,10 @@ def update_movies():
     """
 
     try:
-        # Execute the SQL command
         cur.execute(sql)
-        # Commit your changes in the database
-    except:
-        # Rollback in case there is any error
+    except pymysql.ProgrammingError as e:
         db.rollback()
+        print('Got error {!r}, errno is {}'.format(e, e.args[0]))
 
     movies = plex.library.section('Movies')
     for x in movies.all():
@@ -94,24 +88,18 @@ def update_movies():
 
     if FAIL_FLAG:
         sys.exit(1)
-    else:
-        db.commit()
 
 
 def insert_show(x):
     sql = "INSERT INTO tv_shows (plex_id, title, title_sort, seasons, episodes, rating, studio, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    print(x.title)
     try:
         args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), len(x.seasons()), len(x.episodes()),
                 str(x.contentRating), x.studio, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
-        # Commit your changes in the database
         print("Inserted SH: %s" % (x.title))
     except pymysql.ProgrammingError as e:
-        # Rollback in case there is any error
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
-        FAIL_FLAG = True
         return False
     return True
 
@@ -127,7 +115,7 @@ def update_tv_shows():
       seasons           int unsigned NOT NULL,
       episodes           int unsigned NOT NULL,
       rating          varchar(255) NOT NULL,
-      #genre          varchar(255) NOT NULL,
+      # genre          varchar(255) NOT NULL,
       studio          varchar(255) NOT NULL,
       score           float(8) NOT NULL,
       year            int NOT NULL,
@@ -139,13 +127,10 @@ def update_tv_shows():
     """
 
     try:
-        # Execute the SQL command
         cur.execute(sql)
-        # Commit your changes in the database
-        db.commit()
     except pymysql.ProgrammingError as e:
         db.rollback()
-        print('Got error {!r}, errno is {}'.format(e, e.args[0])) 
+        print('Got error {!r}, errno is {}'.format(e, e.args[0]))
     shows = plex.library.section('TV Shows')
     for show in shows.all():
         if check_in_table(show.ratingKey, 'tv_shows') is None:
@@ -154,21 +139,18 @@ def update_tv_shows():
 
     if FAIL_FLAG:
         sys.exit(1)
-    else:
-        db.commit()
 
 
 def insert_episode(x):
+    global FAIL_FLAG
     sql = "INSERT INTO tv_episodes (plex_id, title, title_sort, season, ep_index, show_id, duration_min, duration_ms, rating, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     try:
         args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), x.parentIndex, x.index,
                 x.grandparentRatingKey, x.duration / 60000, x.duration, x.contentRating, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
-        # Commit your changes in the database
         print("Inserted EP (%s): %s" % (x.grandparentTitle, x.title))
-        #print(datetime.datetime.fromtimestamp(1284286794).strftime('%Y-%m-%d %H:%M:%S'))
+        # print(datetime.datetime.fromtimestamp(1284286794).strftime('%Y-%m-%d %H:%M:%S'))
     except pymysql.ProgrammingError as e:
-        # Rollback in case there is any error
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         FAIL_FLAG = True
@@ -178,7 +160,6 @@ def insert_episode(x):
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         print("Skipping: (%s): %s" % (x.grandparentTitle, x.title))
         return False
-    db.commit()
     return True
 
 
@@ -206,12 +187,8 @@ def update_tv_episodes(episodes):
     """
 
     try:
-        # Execute the SQL command
         cur.execute(sql)
-        # Commit your changes in the database
-        db.commit()
     except pymysql.ProgrammingError as e:
-        # Rollback in case there is any error
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
 
@@ -220,12 +197,8 @@ def update_tv_episodes(episodes):
             continue
         else:
             insert_episode(ep)
-    return
-
     if FAIL_FLAG:
         sys.exit(1)
-    else:
-        db.commit()
 
 
 update_movies()
