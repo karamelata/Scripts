@@ -17,7 +17,7 @@ db = pymysql.connect(host="localhost",
 # you must create a Cursor object. It will let
 #  you execute all the queries you need
 cur = db.cursor()
-plex = PlexServer('http://127.0.0.1:32400', os.environ['PLEX_TOKEN'])
+plex = PlexServer('http://127.0.0.1:1234', os.environ['PLEX_TOKEN'])
 
 
 def clean_up():
@@ -43,7 +43,7 @@ def insert_movie(x):
                 x.studio), x.duration / 60000, x.duration, str(x.contentRating), x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
-        print("Inserted MV: %s" % (x.titleSort))
+        print("Inserted MV: %s" % (x.title))
         db.commit()
     except pymysql.ProgrammingError as e:
         # Rollback in case there is any error
@@ -108,7 +108,7 @@ def insert_show(x):
                 str(x.contentRating), genre[:-1], x.studio, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
-        print("Inserted SH: %s" % (x.titleSort))
+        print("Inserted SH: %s" % (x.title))
     except pymysql.ProgrammingError as e:
         # Rollback in case there is any error
         db.rollback()
@@ -167,7 +167,7 @@ def insert_episode(x):
                 x.grandparentRatingKey, x.duration / 60000, x.duration, x.contentRating, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
-        print("Inserted EP (%s): %s" % (x.grandparentTitle, x.titleSort))
+        print("Inserted EP (%s): %s" % (x.grandparentTitle, x.title))
         #print(datetime.datetime.fromtimestamp(1284286794).strftime('%Y-%m-%d %H:%M:%S'))
     except pymysql.ProgrammingError as e:
         # Rollback in case there is any error
