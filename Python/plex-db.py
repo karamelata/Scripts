@@ -99,13 +99,11 @@ def update_movies():
 
 
 def insert_show(x):
-    sql = "INSERT INTO tv_shows (plex_id, title, title_sort, seasons, episodes, rating, genre, studio, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO tv_shows (plex_id, title, title_sort, seasons, episodes, rating, studio, score, year, summary, added, updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    print(x.title)
     try:
-        genre = ""
-        for e in x.genres:
-            genre += e.tag + ','
         args = (x.ratingKey, x.title.encode('utf-8'), x.titleSort.encode('utf-8'), len(x.seasons()), len(x.episodes()),
-                str(x.contentRating), genre[:-1], x.studio, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
+                str(x.contentRating), x.studio, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         # Commit your changes in the database
         print("Inserted SH: %s" % (x.title))
@@ -129,7 +127,7 @@ def update_tv_shows():
       seasons           int unsigned NOT NULL,
       episodes           int unsigned NOT NULL,
       rating          varchar(255) NOT NULL,
-      genre          varchar(255) NOT NULL,
+      #genre          varchar(255) NOT NULL,
       studio          varchar(255) NOT NULL,
       score           float(8) NOT NULL,
       year            int NOT NULL,
@@ -174,6 +172,11 @@ def insert_episode(x):
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         FAIL_FLAG = True
+        return False
+    # Skip any rogue entries (specials, pilots, etc)
+    except AttributeError as e:
+        print('Got error {!r}, errno is {}'.format(e, e.args[0]))
+        print("Skipping: (%s): %s" % (x.grandparentTitle, x.title))
         return False
     db.commit()
     return True
