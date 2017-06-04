@@ -149,7 +149,8 @@ def insert_episode(x):
                 x.grandparentRatingKey, x.duration / 60000, x.duration, x.contentRating, x.rating, x.year, x.summary.encode('utf-8'), x.addedAt.strftime('%Y-%m-%d %H:%M:%S'), x.updatedAt.strftime('%Y-%m-%d %H:%M:%S'))
         cur.execute(sql, args)
         print("Inserted EP (%s): %s" % (x.grandparentTitle, x.title))
-        # print(datetime.datetime.fromtimestamp(1284286794).strftime('%Y-%m-%d %H:%M:%S'))
+        # print(datetime.datetime.fromtimestamp(1284286794).strftime('%Y-%m-%d
+        # %H:%M:%S'))
     except pymysql.ProgrammingError as e:
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
@@ -201,6 +202,21 @@ def update_tv_episodes(episodes):
         sys.exit(1)
 
 
+def checkup_movies():
+    movies = plex.library.section('Movies').all()
+    cur.execute("SELECT * FROM movies")
+    for row in cur.fetchall():
+        success = False
+        for movie in movies:
+            if int(row[1]) == int(movie.ratingKey) and int(row[8]) == int(movie.duration):
+                success = True
+                break
+        if not success:
+            cur.execute("DELETE FROM movies WHERE plex_id=%s" % row[1])
+            print("Removed: %s" % row[2])
+
+
+checkup_movies()
 update_movies()
 update_tv_shows()
 clean_up()
