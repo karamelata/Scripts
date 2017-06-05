@@ -204,7 +204,12 @@ def update_tv_episodes(episodes):
 
 def checkup_movies():
     movies = plex.library.section('Movies').all()
-    cur.execute("SELECT * FROM movies")
+    try:
+        cur.execute("SELECT * FROM movies")
+    except pymysql.ProgrammingError as e:
+            if e.args[0] == 1146:
+                print("Movies table doesn't exist- skipping checkup")
+                return
     for row in cur.fetchall():
         success = False
         for movie in movies:
