@@ -21,19 +21,36 @@ Weather = namedtuple("Weather", "timestamp year month day weekDay condition\
 apiKeyFile = '/Users/Dave/keys/darkSky_api.txt'
 sqlPswdFile = '/Users/Dave/keys/sql_pswd.txt'
 gsJSONFile = '/Users/Dave/keys/gs_client.json'
-ROGUE = '-'
+ROGUE = None
 ONE_DAY = 86400
 DEFAULT_COOR = "42.6751,-71.4828"
 LOCATION_COOR = "NULL"
 LOCATION_INFO = "NULL"
+
+
+API_KEY = open(apiKeyFile, 'r').readline()
+SQL_PSWD = open(sqlPswdFile, 'r').readline()[:-1]
+
+db = pymysql.connect(host="localhost",
+                     port=3306,
+                     user="root",
+                     passwd=SQL_PSWD,
+                     db="weather",
+                     charset='utf8')
+
+cur = db.cursor()
 
 if len(sys.argv) > 1:
     FLAG_CALL = True
 else:
     FLAG_CALL = False
 
-API_KEY = open(apiKeyFile, 'r').readline()
-SQL_PSWD = open(sqlPswdFile, 'r').readline()[:-1]
+
+def cleanup(exit_code=0):
+    db.commit()
+    cur.close()
+    db.close()
+    sys.exit(exit_code)
 
 
 def clearScreen():
@@ -57,14 +74,6 @@ def openSS(bookName, sheetName):
 
 
 def add_sql(results):
-    db = pymysql.connect(host="localhost",
-                         port=3306,
-                         user="root",
-                         passwd=SQL_PSWD,
-                         db="weather")
-
-    cur = db.cursor()
-
     sql = """
 	    CREATE TABLE IF NOT EXISTS current
 	    (
@@ -78,11 +87,11 @@ def add_sql(results):
 	      temp_min          float(8) NOT NULL,
 	      temp_max          float(8) NOT NULL,
 	      precip_prob       float(8) NOT NULL,
-	      precip_type       varchar(16) NOT NULL,
+	      precip_type       varchar(16),
 	      humidity          float(8) NOT NULL,
 	      wind_speed        float(8) NOT NULL,
 	      cloud_cover       float(8) NOT NULL,
-	      summary_week      varchar(255) NOT NULL,
+	      summary_week      varchar(255),
 	      PRIMARY KEY     	(id)
 	    );
 	    """
@@ -93,26 +102,32 @@ def add_sql(results):
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         return False
 
-    # for i in range(len(results)):
-    #	print(i, results[i])
     sql = "INSERT INTO current (added, year, month, day, week_day, summary_day, temp_min, temp_max, precip_prob, precip_type, humidity, wind_speed, cloud_cover, summary_week) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     try:
-        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        args = (now, results[1], results[2], results[3], results[4], results[5], results[6], results[
-                7], results[8], results[9], results[10], results[11], results[12], results[13])
-    #	print(args)
+        timestamp = datetime.datetime.fromtimestamp(
+            float(results[0])).strftime('%Y-%m-%d %H:%M:%S')
+        args = (timestamp, results[1], results[2], results[3], results[4], results[5], results[6],
+                results[7], results[8], results[9], results[10], results[11], results[12], results[13])
         cur.execute(sql, args)
-        print(cur._executed)
+        print("Added to SQL.")
+        # print(cur._executed)
     except pymysql.ProgrammingError as e:
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         print(cur._executed)
         return False
-
-    db.commit()
-    cur.close()
-    db.close()
     return True
+
+
+def convert_excel_to_sql(wks):
+    result = getWeather(0)
+    all_dates = wks.get_all_values()[1:]
+    for day in all_dates:
+        for i in range(len(day)):
+            if day[i] == "None":
+                day[i] = None
+        add_sql(day)
+    cleanup()
 
 
 def getCoordinates(locationString):
@@ -223,7 +238,7 @@ def getWeather(when):
             weekSummary)
     else:
         print("Weather API call failed on " + time.strftime("%c"))
-        sys.exit()
+        cleanup()
     return result
 
 
@@ -270,7 +285,7 @@ def userMode(choice):
         if choice == -1:
             choice = getInteractiveChoice()
         if choice == 0:
-            sys.exit()
+            cleanup()
         if choice == 1:
             result = getWeather(0)
             timestamp = datetime.datetime.now()
@@ -321,7 +336,7 @@ def userMode(choice):
             LOCATION_INFO = weatherLocation
         # If called with CLI flag, no need to loop (not interactive mode)
         if FLAG_CALL:
-            sys.exit()
+            cleanup()
         choice = -1
 
 
@@ -335,16 +350,17 @@ def callHelp():
     print("-m    : Time Machine weather")
     print("-w    : Weekly Report")
     print("-h    : Call this help menu again")
-    sys.exit()
+    cleanup()
 
 
 def autoMode():
     wks = openSS("Weather API", "Current")
+    # convert_excel_to_sql(wks)
     result = getWeather(0)
     print(result)
     wks.append_row(result)
     add_sql(result)
-    sys.exit(0)
+    cleanup()
 
 
 def main():
