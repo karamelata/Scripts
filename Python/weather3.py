@@ -128,7 +128,6 @@ def getLocationInfo(coordinates):
 	return location.address
 
 def getWeatherJSON(when):
-	global LOCATION_COOR
 	if (when == 0):
 		url='https://api.darksky.net/forecast/' + API_KEY + '/' + LOCATION_COOR
 	# If unix timestamp is passed, use Time Machine API call
@@ -224,8 +223,6 @@ def printReport(result, pauseAfterPrinting):
 		pressKeyToContinue()
 
 def getInteractiveChoice():
-	global LOCATION_COOR
-	global LOCATION_INFO
 	while True:
 		clearScreen()
 		print("-- WEATHER DATA --")
@@ -330,7 +327,6 @@ def autoMode():
 
 def main():
 	global LOCATION_COOR
-	global LOCATION_INFO
 	global FLAG_CALL
 
 	LOCATION_COOR = DEFAULT_COOR
