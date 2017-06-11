@@ -73,11 +73,18 @@ def openSS(bookName, sheetName):
     return wks
 
 
-def add_sql(results):
+def check_in_table(id_to_check, table_name):
+    sql = "SELECT * FROM %s WHERE `id`=%s" % (
+        table_name, str(id_to_check))
+    cur.execute(sql)
+    return cur.fetchone()
+
+
+def add_sql(results, table_name):
     sql = """
-	    CREATE TABLE IF NOT EXISTS current
+	    CREATE TABLE IF NOT EXISTS %s
 	    (
-	      id              	int unsigned NOT NULL auto_increment,
+	      id              	int unsigned NOT NULL,
 	      added         	datetime NOT NULL,
 	      year         		int unsigned NOT NULL,
 	      month         	int unsigned NOT NULL,
@@ -90,11 +97,11 @@ def add_sql(results):
 	      precip_type       varchar(16),
 	      humidity          float(8) NOT NULL,
 	      wind_speed        float(8) NOT NULL,
-	      cloud_cover       float(8) NOT NULL,
+	      cloud_cover       float(8),
 	      summary_week      varchar(255),
 	      PRIMARY KEY     	(id)
 	    );
-	    """
+    """ % table_name
     try:
         cur.execute(sql)
     except pymysql.ProgrammingError as e:
@@ -102,31 +109,46 @@ def add_sql(results):
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         return False
 
-    sql = "INSERT INTO current (added, year, month, day, week_day, summary_day, temp_min, temp_max, precip_prob, precip_type, humidity, wind_speed, cloud_cover, summary_week) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    if check_in_table(results[0], table_name) is not None:
+        print(results[0], "is already in", table_name, "- skipping insert")
+        return
+
+    sql = "INSERT INTO " + table_name + \
+        " (id, added, year, month, day, week_day, summary_day, temp_min, temp_max, precip_prob, precip_type, humidity, wind_speed, cloud_cover, summary_week) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     try:
         timestamp = datetime.datetime.fromtimestamp(
             float(results[0])).strftime('%Y-%m-%d %H:%M:%S')
-        args = (timestamp, results[1], results[2], results[3], results[4], results[5], results[6],
+        args = (results[0], timestamp, results[1], results[2], results[3], results[4], results[5], results[6],
                 results[7], results[8], results[9], results[10], results[11], results[12], results[13])
         cur.execute(sql, args)
-        print("Added to SQL.")
+        print("Added to SQL:", timestamp)
         # print(cur._executed)
     except pymysql.ProgrammingError as e:
         db.rollback()
         print('Got error {!r}, errno is {}'.format(e, e.args[0]))
         print(cur._executed)
-        return False
+        cleanup(1)
+    except ValueError as e:
+        db.rollback()
+        print('Got error {!r}, errno is {}'.format(e, e.args[0]))
+        print(results[0])
+        cleanup(1)
+
     return True
 
 
-def convert_excel_to_sql(wks):
-    result = getWeather(0)
+def convert_excel_to_sql(wks, table_name):
     all_dates = wks.get_all_values()[1:]
+    count = 1
+    day_size = len(all_dates[1])
+    total = len(all_dates)
     for day in all_dates:
-        for i in range(len(day)):
+        for i in range(day_size):
             if day[i] == "None":
                 day[i] = None
-        add_sql(day)
+        print(count, "/", total)
+        add_sql(day, table_name)
+        count += 1
     cleanup()
 
 
@@ -355,11 +377,12 @@ def callHelp():
 
 def autoMode():
     wks = openSS("Weather API", "Current")
-    # convert_excel_to_sql(wks)
     result = getWeather(0)
     print(result)
     wks.append_row(result)
-    add_sql(result)
+    add_sql(result, "current")
+    #wks = openSS("Weather API", "PastWeather")
+    #convert_excel_to_sql(wks, "past")
     cleanup()
 
 
