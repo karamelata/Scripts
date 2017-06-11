@@ -8,6 +8,7 @@ import time
 import datetime
 import urllib.request
 import json
+import pymysql
 from geopy.geocoders import Nominatim
 
 import gspread
@@ -18,6 +19,7 @@ Weather = namedtuple("Weather", "timestamp year month day weekDay condition\
  	minTemp maxTemp precipProb precipType humidity windSpeed cloudCover weekSummary")
 
 apiKeyFile = '/Users/Dave/keys/darkSky_api.txt'
+sqlPswdFile = '/Users/Dave/keys/sql_pswd.txt'
 gsJSONFile = '/Users/Dave/keys/gs_client.json'
 ROGUE = '-'
 ONE_DAY = 86400
@@ -31,7 +33,7 @@ else:
 	FLAG_CALL = False
 
 API_KEY = open(apiKeyFile, 'r').readline()
-
+SQL_PSWD = open(sqlPswdFile, 'r').readline()[:-1]
 def clearScreen():
 	if (platform.system() == "Windows"):
 		os.system('cls')
@@ -47,6 +49,63 @@ def openSS(bookName, sheetName):
 	gc = gspread.authorize(credentials)
 	wks = gc.open(bookName).worksheet(sheetName)
 	return wks
+
+def add_sql(results):
+	db = pymysql.connect(host="localhost",
+                     port=3306,
+                     user="root",
+                     passwd=SQL_PSWD,
+                     db="weather")
+
+	cur = db.cursor()
+
+	sql = """
+	    CREATE TABLE IF NOT EXISTS current
+	    (
+	      id              int unsigned NOT NULL auto_increment,
+	      added         datetime NOT NULL,
+	      year         int unsigned NOT NULL,
+	      month         int unsigned NOT NULL,
+	      day         int unsigned NOT NULL,
+	      week_day		varchar(16) NOT NULL,
+	      summary_day		varchar(255) NOT NULL,
+	      temp_min           float(8) NOT NULL,
+	      temp_max           float(8) NOT NULL,
+	      precip_prob           float(8) NOT NULL,
+	      precip_type           varchar(16) NOT NULL,
+	      humidity           float(8) NOT NULL,
+	      wind_speed           float(8) NOT NULL,
+	      cloud_cover           float(8) NOT NULL,
+	      summary_week           varchar(255) NOT NULL,
+	      PRIMARY KEY     (id)
+	    );
+	    """
+	try:
+		cur.execute(sql)
+	except pymysql.ProgrammingError as e:
+		db.rollback()
+		print('Got error {!r}, errno is {}'.format(e, e.args[0]))
+		return False
+
+	#for i in range(len(results)):
+	#	print(i, results[i])
+	sql = "INSERT INTO current (added, year, month, day, week_day, summary_day, temp_min, temp_max, precip_prob, precip_type, humidity, wind_speed, cloud_cover, summary_week) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+	try:
+		now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		args = (now, results[1], results[2], results[3], results[4], results[5], results[6], results[7], results[8], results[9], results[10], results[11], results[12], results[13])
+	#	print(args)
+		cur.execute(sql, args)
+		print(cur._executed)
+	except pymysql.ProgrammingError as e:
+		db.rollback()
+		print('Got error {!r}, errno is {}'.format(e, e.args[0]))
+		print(cur._executed)
+		return False
+
+	db.commit()
+	cur.close()
+	db.close()
+	return True
 
 def getCoordinates(locationString):
 	geolocator = Nominatim()
@@ -191,6 +250,7 @@ def getInteractiveChoice():
 def userMode(choice):
 	global LOCATION_COOR
 	global LOCATION_INFO
+	LOCATION_INFO = getLocationInfo(LOCATION_COOR)
 	while True:
 		if choice == -1:
 			choice = getInteractiveChoice()
@@ -265,6 +325,8 @@ def autoMode():
 	result = getWeather(0)
 	print(result)
 	wks.append_row(result)
+	add_sql(result)
+	sys.exit(0)
 
 def main():
 	global LOCATION_COOR
@@ -272,7 +334,6 @@ def main():
 	global FLAG_CALL
 
 	LOCATION_COOR = DEFAULT_COOR
-	LOCATION_INFO = getLocationInfo(LOCATION_COOR)
 	if FLAG_CALL:
 		mode = str(sys.argv[1])
 		if mode == '-a':
