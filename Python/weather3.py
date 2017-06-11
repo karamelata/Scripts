@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2016 Dave Machado
+# Copyright 2017 Dave Machado
 
 import os
 import sys
@@ -68,22 +68,22 @@ def add_sql(results):
     sql = """
 	    CREATE TABLE IF NOT EXISTS current
 	    (
-	      id              int unsigned NOT NULL auto_increment,
-	      added         datetime NOT NULL,
-	      year         int unsigned NOT NULL,
-	      month         int unsigned NOT NULL,
-	      day         int unsigned NOT NULL,
-	      week_day		varchar(16) NOT NULL,
+	      id              	int unsigned NOT NULL auto_increment,
+	      added         	datetime NOT NULL,
+	      year         		int unsigned NOT NULL,
+	      month         	int unsigned NOT NULL,
+	      day         		int unsigned NOT NULL,
+	      week_day			varchar(16) NOT NULL,
 	      summary_day		varchar(255) NOT NULL,
-	      temp_min           float(8) NOT NULL,
-	      temp_max           float(8) NOT NULL,
-	      precip_prob           float(8) NOT NULL,
-	      precip_type           varchar(16) NOT NULL,
-	      humidity           float(8) NOT NULL,
-	      wind_speed           float(8) NOT NULL,
-	      cloud_cover           float(8) NOT NULL,
-	      summary_week           varchar(255) NOT NULL,
-	      PRIMARY KEY     (id)
+	      temp_min          float(8) NOT NULL,
+	      temp_max          float(8) NOT NULL,
+	      precip_prob       float(8) NOT NULL,
+	      precip_type       varchar(16) NOT NULL,
+	      humidity          float(8) NOT NULL,
+	      wind_speed        float(8) NOT NULL,
+	      cloud_cover       float(8) NOT NULL,
+	      summary_week      varchar(255) NOT NULL,
+	      PRIMARY KEY     	(id)
 	    );
 	    """
     try:
