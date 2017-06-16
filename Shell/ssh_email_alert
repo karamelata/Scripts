@@ -1,0 +1,32 @@
+#!/bin/bash
+
+tmptxt="/tmp/ssh_alert_email.txt"
+
+ip="`who -m | cut -d'(' -f2 | cut -d')' -f1`"
+
+echo "ALERT - SSH Shell Access"  > $tmptxt
+
+echo "" >> $tmptxt
+echo "SSH Login:" >> $tmptxt
+echo "`who -m`" >> $tmptxt
+
+echo "" >> $tmptxt
+echo "IP:" >> $tmptxt
+echo "$ip" >> $tmptxt
+
+echo "" >> $tmptxt
+echo "Access time:" >> $tmptxt
+echo "`date`" >> $tmptxt
+
+echo "" >> $tmptxt
+echo "Current sudo:" >> $tmptxt
+echo "`whoami`" >> $tmptxt
+
+echo "" >> $tmptxt
+echo "Home path:" >> $tmptxt
+echo "`pwd`" >> $tmptxt
+
+#cat $tmptxt
+cat $tmptxt | mail -s "Alert: SSH Access from $ip" name@domain.com
+
+rm -fr $tmptxt
