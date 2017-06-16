@@ -156,7 +156,7 @@ alias ping='ping -c 5'
 alias fastping='ping -c 100 -s.2'
 alias ports='netstat -tulanp'
 alias net='nmap -sn 192.168.1.0/24'
-alias xip='curl https://myexternalip.com/raw'
+alias xip='dig +short myip.opendns.com @resolver1.opendns.com'
 # Syntax Highlighting installed from Homebrew
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export JAVA_HOME=$(/usr/libexec/java_home)
